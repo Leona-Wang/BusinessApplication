@@ -83,8 +83,8 @@
                 <div id="inventory" class="collapse" aria-labelledby="headingInventory" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">存貨管理功能:</h6>
-                        <a class="collapse-item" href="{% url 'showInventory' %}">查詢/修改/刪除存貨</a>
-                        <a class="collapse-item" href="{% url 'addInventory' %}">新增存貨紀錄</a>
+                        <a class="collapse-item" href="utilities-color.html">查詢/修改/刪除存貨</a>
+                        <a class="collapse-item" href="utilities-border.html">新增存貨紀錄</a>
                     </div>
                 </div>
             </li>
@@ -98,8 +98,8 @@
                 <div id="suppliers" class="collapse" aria-labelledby="headingSuppliers" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">供應商資訊功能:</h6>
-                        <a class="collapse-item" href="{% url 'showSupplier' %}">查詢/修改/刪除供應商</a>
-                        <a class="collapse-item" href="{% url 'addSupplier' %}">新增供應商項目</a>
+                        <a class="collapse-item" href="utilities-color.html">查詢/修改/刪除供應商</a>
+                        <a class="collapse-item" href="utilities-border.html">新增供應商項目</a>
                     </div>
                 </div>
             </li>
@@ -121,8 +121,8 @@
                 <div id="customer" class="collapse" aria-labelledby="headingCustomer" data-parent="#accordionSidebar" style="">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">顧客清單功能:</h6>
-                        <a class="collapse-item" href="{% url 'showCustomer' %}">查詢/修改/刪除顧客</a>
-                        <a class="collapse-item" href="{% url 'addCustomer' %}">新增顧客項目</a>
+                        <a class="collapse-item" href="login.html">查詢/修改/刪除顧客</a>
+                        <a class="collapse-item" href="register.html">新增顧客項目</a>
                     </div>
                 </div>
             </li>
@@ -135,17 +135,17 @@
                 <div id="order" class="collapse" aria-labelledby="headingOrder" data-parent="#accordionSidebar" style="">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">顧客訂單功能:</h6>
-                        <a class="collapse-item" href="{% url 'showOrder' %}">查詢/修改/刪除訂單</a>
-                        <a class="collapse-item" href="{% url 'addOrder' %}">新增訂單</a>
+                        <a class="collapse-item" href="login.html">查詢/修改/刪除訂單</a>
+                        <a class="collapse-item" href="register.html">新增訂單</a>
                         <h6 class="collapse-header">散客購物紀錄功能:</h6>
-                        <a class="collapse-item" href="{% url 'showWalkIn' %}">查詢/修改/刪除散客購物紀錄</a>
-                        <a class="collapse-item" href="{% url 'addWalkIn' %}">新增散客購物紀錄</a>
+                        <a class="collapse-item" href="login.html">查詢/修改/刪除散客購物紀錄</a>
+                        <a class="collapse-item" href="register.html">新增散客購物紀錄</a>
                     </div>
                 </div>
             </li>
             <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'analysis' %}">
+                <a class="nav-link" href="#">
                     <i class="bi bi-clipboard-data-fill"></i>
                     <span>分析結果</span>
                 </a>
@@ -349,9 +349,9 @@
                                             請選擇作業管理相關功能
                                         </button>
                                         <div class="col-lg-12 dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
-                                            <a class="dropdown-item" href="{% url 'showBOM' %}">BOM表</a>
-                                            <a class="dropdown-item" href="{% url 'showInventory' %}">存貨管理</a>
-                                            <a class="dropdown-item" href="{% url 'showSupplier' %}">供應商資訊</a>
+                                            <a class="dropdown-item" href="showBOM.html">BOM表</a>
+                                            <a class="dropdown-item" href="#">存貨管理</a>
+                                            <a class="dropdown-item" href="#">供應商資訊</a>
                                         </div>
                                     </div>
                                 </div>
@@ -368,9 +368,9 @@
                                             請選擇顧客關係管理相關功能
                                         </button>
                                         <div class="col-lg-12 dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
-                                            <a class="dropdown-item" href="{% url 'showOrder' %}">顧客訂單</a>
-                                            <a class="dropdown-item" href="{% url 'showCustomer' %}">顧客清單</a>
-                                            <a class="dropdown-item" href="{% url 'analysis' %}">分析結果</a>
+                                            <a class="dropdown-item" href="#">顧客訂單</a>
+                                            <a class="dropdown-item" href="#">顧客清單</a>
+                                            <a class="dropdown-item" href="#">分析結果</a>
                                         </div>
                                     </div>
                                 </div>

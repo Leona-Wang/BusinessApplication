@@ -16,9 +16,22 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from functions import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('function/', include('functions.urls')),
-    path('', include('functions.urls')),
+    path('', views.index, name='index'),
+    path('showBOM/', views.showBOM, name='showBOM'),
+    path('addBOM', views.addBOM, name='addBOM'),
+    path('showInventory', views.showInventory, name='showInventory'),
+    path('addInventory', views.addInventory, name='addInventory'),
+    path('showSupplier', views.showSupplier, name='showSupplier'),
+    path('addSupplier', views.addSupplier, name='addSupplier'),
+    path('showCustomer', views.showCustomer, name='showCustomer'),
+    path('addCustomer', views.addCustomer, name='addCustomer'),
+    path('showOrder', views.showOrder, name='showOrder'),
+    path('addOrder', views.addOrder, name='addOrder'),
+    path('showWalkIn', views.showWalkIn, name='showWalkIn'),
+    path('addWalkIn', views.addWalkIn, name='addWalkIn'),
+    path('analysis', views.analysis, name='analysis'),
 ]
