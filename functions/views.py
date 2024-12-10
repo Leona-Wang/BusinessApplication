@@ -13,6 +13,14 @@ def addBOM(request):
     return render(request, 'addBOM.html')
 
 
+def showMaterial(request):
+    return render(request, 'showMaterial.html')
+
+
+def addMaterial(request):
+    return render(request, 'addMaterial.html')
+
+
 def addInventory(request):
     return render(request, 'addInventory.html')
 
