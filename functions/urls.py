@@ -34,4 +34,6 @@ urlpatterns = [
     path('showWalkIn', views.showWalkIn, name='showWalkIn'),
     path('addWalkIn', views.addWalkIn, name='addWalkIn'),
     path('analysis', views.analysis, name='analysis'),
+    #表單提交
+    path('submitSupplier', views.submitSupplier, name='submitSupplier'),
 ]

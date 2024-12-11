@@ -21,7 +21,7 @@ from functions import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name='index'),
-    path('showBOM/', views.showBOM, name='showBOM'),
+    path('showBOM', views.showBOM, name='showBOM'),
     path('addBOM', views.addBOM, name='addBOM'),
     path('showMaterial', views.showBOM, name='showMaterial'),
     path('addMaterial', views.addBOM, name='addMaterial'),
@@ -36,4 +36,6 @@ urlpatterns = [
     path('showWalkIn', views.showWalkIn, name='showWalkIn'),
     path('addWalkIn', views.addWalkIn, name='addWalkIn'),
     path('analysis', views.analysis, name='analysis'),
+    #表單提交
+    path('submitSupplier', views.submitSupplier, name='submitSupplier'),
 ]

@@ -1,4 +1,6 @@
 from django.shortcuts import render
+from django.http import JsonResponse
+from functions.models.supplier import Supplier
 
 
 def index(request):
@@ -63,3 +65,26 @@ def showWalkIn(request):
 
 def analysis(request):
     return render(request, 'analysis.html')
+
+
+def submitSupplier(request):
+    if request.method == 'POST':
+        # 從表單中獲取數據
+        supplierName = request.POST.get('supplierName')
+        supplierPhone = request.POST.get('supplierPhone')
+
+        # 打印或處理數據
+        print(f"供應商名稱: {supplierName}, 供應商電話: {supplierPhone}")
+
+        # 保存到數據庫的示例（可選）
+        Supplier.objects.create(supplierName=supplierName, supplierPhone=supplierPhone)
+
+        # 返回 JSON 成功響應
+        return JsonResponse({
+            'message': '資料已成功提交',
+            'supplier_name': supplierName,
+            'supplier_phone': supplierPhone,
+        })
+
+    # GET 請求時返回模板
+    #return render(request, 'addSupplier.html')
