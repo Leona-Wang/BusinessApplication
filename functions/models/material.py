@@ -18,7 +18,10 @@ class Material(models.Model):
 
     def save(self, *args, **kwargs):
         # 計算單價並四捨五入
-        if self.packAmount > 0:
+        if int(self.packAmount) > 0:
+            self.packAmount = int(self.packAmount)
+            self.packPrice = int(self.packPrice)
+            self.validDay = int(self.validDay)
             self.unitPrice = round(self.packPrice / self.packAmount)
             self.lowestAmount = self.packAmount * 2
         super().save(*args, **kwargs)

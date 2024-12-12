@@ -24,30 +24,28 @@ document.getElementById('submitSupplierForm').addEventListener('submit', functio
         return; // 停止提交表單
     }
 
-    // 發送 AJAX 請求
-    fetch(submitSupplierURL, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-        },
-        body: new URLSearchParams({
+    $.ajax({
+        url: '/submitSupplier', // Django 後端 API 路徑
+        type: 'POST',          // 使用 POST 請求
+        data: {
             supplierName: supplierName,
-            supplierPhone: supplierPhone,
-        }),
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.message) {
-                alert(data.message);
+            supplierPhone: supplierPhone,      // 傳送的資料 ID
+        },
+        success: function (response) {
+            if (response.success) {
+                alert("新增成功！");
+                document.getElementById('supplierName').value = '';
+                document.getElementById('supplierPhone').value = '';
+            } else {
+                alert("新增失敗：" + response.message);
                 document.getElementById('supplierName').value = '';
                 document.getElementById('supplierPhone').value = '';
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('提交失敗！');
-        });
+        },
+        error: function (xhr, status, error) {
+            alert("發生錯誤：" + error);
+        }
+    });
 });
 document.getElementById('supplierPhone').addEventListener('input', function () {
     const phoneInput = this.value;

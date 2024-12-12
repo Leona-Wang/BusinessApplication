@@ -8,3 +8,8 @@ class Supplier(models.Model):
 
     def __str__(self):
         return f"{self.supplierName} - {self.supplierPhone}"
+
+    @staticmethod
+    def getAllSupplier():
+        supplierList = Supplier.objects.all()
+        return supplierList

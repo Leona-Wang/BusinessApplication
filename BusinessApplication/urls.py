@@ -23,8 +23,8 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('showBOM', views.showBOM, name='showBOM'),
     path('addBOM', views.addBOM, name='addBOM'),
-    path('showMaterial', views.showBOM, name='showMaterial'),
-    path('addMaterial', views.addBOM, name='addMaterial'),
+    path('showMaterial', views.showMaterial, name='showMaterial'),
+    path('addMaterial', views.addMaterial, name='addMaterial'),
     path('showInventory', views.showInventory, name='showInventory'),
     path('addInventory', views.addInventory, name='addInventory'),
     path('showSupplier', views.showSupplier, name='showSupplier'),
@@ -38,4 +38,13 @@ urlpatterns = [
     path('analysis', views.analysis, name='analysis'),
     #表單提交
     path('submitSupplier', views.submitSupplier, name='submitSupplier'),
+    path('updateSupplier', views.updateSupplier, name='updateSupplier'),
+    path('submitMaterial', views.submitMaterial, name='submitMaterial'),
+    path('updateMaterial', views.updateMaterial, name='updateMaterial'),
+    #生成表格
+    path('getSupplierList', views.getSupplierList, name='getSupplierList'),
+    path('getMaterialList', views.getMaterialList, name='getMaterialList'),
+    #刪除資料
+    path('deleteSupplier', views.deleteSupplier, name='deleteSupplier'),
+    path('deleteMaterial', views.deleteMaterial, name='deleteMaterial'),
 ]

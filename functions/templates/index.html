@@ -32,7 +32,7 @@
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{% url 'index' %}">
                 <div class="sidebar-brand-icon">
                     <i class="bi bi-shop"></i>
                 </div>
@@ -44,7 +44,7 @@
 
             <!-- Nav Item - Dashboard -->
             <li class="nav-item">
-                <a class="nav-link" href="">
+                <a class="nav-link" href="{% url 'index' %}">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>回到主頁</span></a>
             </li>
@@ -59,7 +59,7 @@
 
             <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#BOM"
+                <a class="nav-link collapsed" data-toggle="collapse" data-target="#BOM"
                     aria-expanded="true" aria-controls="BOM">
                     <i class="bi bi-card-list"></i>
                     <span>BOM表</span>
@@ -78,7 +78,7 @@
 
             <!-- Nav Item - Utilities Collapse Menu -->
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#inventory"
+                <a class="nav-link collapsed" data-toggle="collapse" data-target="#inventory"
                     aria-expanded="true" aria-controls="inventory">
                     <i class="bi bi-box-seam-fill"></i>
                     <span>存貨管理</span>
@@ -93,7 +93,7 @@
             </li>
             
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#suppliers"
+                <a class="nav-link collapsed" data-toggle="collapse" data-target="#suppliers"
                     aria-expanded="true" aria-controls="suppliers">
                     <i class="bi bi-building-fill"></i>
                     <span>供應商資訊</span>
@@ -117,7 +117,7 @@
 
             <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#customer" aria-expanded="false" aria-controls="customer">
+                <a class="nav-link collapsed" data-toggle="collapse" data-target="#customer" aria-expanded="false" aria-controls="customer">
                     <i class="bi bi-person-circle"></i>
                     <span>顧客清單</span>
                 </a>
@@ -131,7 +131,7 @@
             </li>
             <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#order" aria-expanded="false" aria-controls="order">
+                <a class="nav-link collapsed" data-toggle="collapse" data-target="#order" aria-expanded="false" aria-controls="order">
                     <i class="bi bi-cart-fill"></i>
                     <span>訂單/購物紀錄</span>
                 </a>
