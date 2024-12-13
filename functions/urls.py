@@ -39,10 +39,12 @@ urlpatterns = [
     path('updateSupplier', views.updateSupplier, name='updateSupplier'),
     path('submitMaterial', views.submitMaterial, name='submitMaterial'),
     path('updateMaterial', views.updateMaterial, name='updateMaterial'),
-
+    path('submitBOM', views.submitBOM, name='submitBOM'),
     #生成表格
     path('getSupplierList', views.getSupplierList, name='getSupplierList'),
     path('getMaterialList', views.getMaterialList, name='getMaterialList'),
+    path('getBOMList', views.getBOMList, name='getBOMList'),
+
     #刪除資料
     path('deleteSupplier', views.deleteSupplier, name='deleteSupplier'),
     path('deleteMaterial', views.deleteMaterial, name='deleteMaterial'),

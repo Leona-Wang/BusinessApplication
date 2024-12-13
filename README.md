@@ -7,3 +7,10 @@ run server：python manage.py runserver
 1.python manage.py makemigrations
 2.python manage.py migrate
 叫 django shell：python manage.py shell
+from functions.models.ingredient import Ingredient
+ingredient=Ingredient.objects.filter(product_id=8)
+ingredient.delete()
+from functions.models.product import Product
+product=Product.objects.get(id=12)
+product.delete()
+exit()

@@ -12,6 +12,7 @@ class Material(models.Model):
     #有效天數
     validDay = models.IntegerField(validators=[MinValueValidator(1)], blank=False, null=False, default=1)
     #創建資料後自動計算packAmount/packPrice，四捨五入到整數
+    shipDay = models.IntegerField(validators=[MinValueValidator(1)], blank=False, null=False, default=1)
     unitPrice = models.IntegerField(blank=True, null=True)
     #起始值設packAmount*2，之後跑模型
     lowestAmount = models.IntegerField(blank=True, null=True)

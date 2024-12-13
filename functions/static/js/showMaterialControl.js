@@ -66,6 +66,7 @@ function loadMaterialTable() {
                 row.append('<td class="editable numberCell">' + material.packPrice + '</td>');
                 row.append('<td class="editable numberCell">' + material.packAmount + '</td>');
                 row.append('<td class="editable numberCell">' + material.validDay + '</td>');
+                row.append('<td class="editable numberCell">' + material.shipDay + '</td>');
                 row.append('<td class="editable supplierCell">' + material.supplierName + '</td>');
                 row.append('<td><a class="modifyButton btn btn-info btn-icon-split"><span class="icon text-white-50"><i class="fas fa-info-circle"></i></span><span class="text">修改</span></a></td>');
                 row.append('<td><a class="deleteButton btn btn-danger btn-icon-split"><span class="icon text-white-50"><i class="fas fa-trash"></i></span><span class="text">刪除</span></a></td>');
@@ -141,7 +142,8 @@ function saveMaterialData(row, button) {
             packPrice: row.find('td:nth-child(3)').text(),
             packAmount: row.find('td:nth-child(4)').text(),
             validDay: row.find('td:nth-child(5)').text(),
-            supplierName: row.find('td:nth-child(6)').text(),
+            shipDay: row.find('td:nth-child(6)').text(),
+            supplierName: row.find('td:nth-child(7)').text(),
         },
         success: function (response) {
             if (response.success) {
