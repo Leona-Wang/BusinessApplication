@@ -7,7 +7,7 @@ from datetime import timedelta, date
 class Inventory(models.Model):
     material = models.ForeignKey("functions.Material", on_delete=models.CASCADE, related_name="inventoryMaterial")
     importPack = models.IntegerField(validators=[MinValueValidator(1)], blank=False, null=False)
-    importAmount = models.IntegerField(blank=True, null=True)
+    importAmount = models.IntegerField(blank=False, null=False)
     importDate = models.DateField(auto_now_add=True)
     expiredDate = models.DateField(blank=True, null=True)
 

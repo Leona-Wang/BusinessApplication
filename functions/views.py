@@ -1,11 +1,12 @@
 import json
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.http import JsonResponse
 from functions.models.supplier import Supplier
 from functions.models.material import Material
 from functions.models.materialSource import MaterialSource
 from functions.models.product import Product
 from functions.models.ingredient import Ingredient
+from functions.models.inventory import Inventory
 
 
 def index(request):
@@ -120,18 +121,7 @@ def deleteSupplier(request):
     if request.method == 'POST':
         supplierID = request.POST.get("id")
         try:
-            supplier = Supplier.objects.filter(id=supplierID)
-            materialList = []
-            sources = MaterialSource.objects.filter(supplier_id=supplierID)
-            if sources.exists():
-                for source in sources:
-                    material = Material.objects.get(id=source.material_id)
-                    materialList.append(material)
-            supplier.delete()
-            if len(materialList) > 0:
-                for material in materialList:
-                    material.delete()
-
+            removeSupplier(supplierID)
             return JsonResponse({"success": True, "message": "資料刪除成功"})
         except Supplier.DoesNotExist:
             return JsonResponse({"success": False, "message": "供應商不存在"})
@@ -140,8 +130,6 @@ def deleteSupplier(request):
 def submitMaterial(request):
     if request.method == 'POST':
         try:
-            # 打印原始請求資料以便調試
-            print(request.body) # 打印原始的請求體，確保它是有效的 JSON
 
             # 解析 JSON 請求體
             data = json.loads(request.body)
@@ -153,15 +141,6 @@ def submitMaterial(request):
             packAmount = data.get('packAmount')
             packPrice = data.get('packPrice')
             validDay = data.get('validDay')
-
-            print(
-                f"""{materialName}
-                  {supplierName}
-                  {shipDay}
-                  {packAmount}
-                  {packPrice}
-                  {validDay}"""
-            )
 
             # 檢查是否有重複的原物料名稱
             checkMaterial = Material.objects.filter(materialName=materialName)
@@ -262,24 +241,14 @@ def deleteMaterial(request):
     if request.method == 'POST':
         materialID = request.POST.get("id")
         try:
-            productList = []
-            ingredients = Ingredient.objects.filter(material_id=materialID)
-            if ingredients.exists():
-                for ingredient in ingredients:
-                    product = Product.objects.get(id=ingredient.product_id)
-                    productList.append(product)
-
-            material = Material.objects.filter(id=materialID)
-            material.delete()
-            if len(productList) > 0:
-                for product in productList:
-                    product.delete()
+            removeMaterial(materialID)
             return JsonResponse({"success": True, "message": "資料刪除成功"})
         except Supplier.DoesNotExist:
             return JsonResponse({"success": False, "message": "原物料不存在"})
 
 
 def submitBOM(request):
+    print("out")
     if request.method == 'POST':
         # 從表單中獲取數據
         data = json.loads(request.body)
@@ -288,11 +257,11 @@ def submitBOM(request):
         productPrice = data.get('productPrice')
 
         checkProduct = Product.objects.filter(productName=productName)
-        print(len(checkProduct) == 0)
 
         if len(checkProduct) == 0:
             Product.objects.create(productName=productName, productPrice=productPrice)
             materials = data.get('materials', [])
+            print(f"lenth:{len(materials)}")
             for material in materials:
                 materialName = material.get('materialName')
                 unit = material.get('unit')
@@ -300,11 +269,11 @@ def submitBOM(request):
                     materialID = Material.objects.get(materialName=materialName).id
                     productID = Product.objects.get(productName=productName).id
                     Ingredient.objects.create(material_id=materialID, product_id=productID, unit=unit)
-                    return JsonResponse({"success": True, "message": "更新成功"})
                 except Material.DoesNotExist:
                     return JsonResponse({"success": False, "message": f"材料 {materialName} 不存在"})
                 except Product.DoesNotExist:
                     return JsonResponse({"success": False, "message": f"產品 {productName} 不存在"})
+            return JsonResponse({"success": True, "message": "更新成功"})
         else:
             return JsonResponse({"success": False, "message": "重複產品資料"})
 
@@ -337,3 +306,107 @@ def getBOMList(request):
         return JsonResponse(BOMList, safe=False)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+
+def deleteProduct(request):
+    if request.method == 'POST':
+        productID = request.POST.get("id")
+        print(productID)
+        try:
+            removeProduct(productID=productID)
+            return JsonResponse({"success": True, "message": "資料刪除成功"})
+        except Product.DoesNotExist:
+            return JsonResponse({"success": False, "message": "產品不存在"})
+
+
+def edit_product(request, productID):
+    print(f"Editing product with ID: {productID}")
+    product = get_object_or_404(Product, id=productID)
+
+    # 查找與這個 product 相關聯的所有 material
+    ingredients = Ingredient.objects.filter(product=product)
+    materials = Material.objects.all() # 獲取所有可用的材料選項
+
+    return render(request, 'updateBOM.html', {'product': product, 'ingredients': ingredients, 'materials': materials})
+
+
+def updateBOM(request):
+    print("in")
+    if request.method == 'POST':
+        # 從表單中獲取數據
+        data = json.loads(request.body)
+
+        productName = data.get('productName')
+        productPrice = data.get('productPrice')
+
+        product = Product.objects.get(productName=productName)
+        product.productPrice = productPrice
+        product.save()
+        productID = product.id
+        materials = data.get('materials', [])
+        ingredients = Ingredient.objects.filter(product_id=productID)
+        ingredients.delete()
+        for material in materials:
+            materialName = material.get('materialName')
+            unit = material.get('unit')
+            try:
+                materialID = Material.objects.get(materialName=materialName).id
+                Ingredient.objects.create(material_id=materialID, product_id=productID, unit=unit)
+            except Material.DoesNotExist:
+                return JsonResponse({"success": False, "message": f"材料 {materialName} 不存在"})
+            except Product.DoesNotExist:
+                return JsonResponse({"success": False, "message": f"產品 {productName} 不存在"})
+        return JsonResponse({"success": True, "message": "更新成功"})
+
+
+def removeMaterial(materialID=None, material=None):
+    if materialID is None:
+        materialID = material.id
+    elif material is None:
+        try:
+            material = Material.objects.filter(id=materialID)
+        except Material.DoesNotExist:
+            raise Material.DoesNotExist("找不到指定的產品")
+
+    productList = []
+    ingredients = Ingredient.objects.filter(material_id=materialID)
+    if ingredients.exists():
+        for ingredient in ingredients:
+            product = Product.objects.filter(id=ingredient.product_id)
+            productList.append(product)
+    material.delete()
+    if len(productList) > 0:
+        for product in productList:
+            removeProduct(product)
+
+
+def removeSupplier(supplierID=None, supplier=None):
+    if supplierID is None:
+        supplierID = supplier.id
+    elif supplier is None:
+        try:
+            supplier = Supplier.objects.filter(id=supplierID)
+        except Supplier.DoesNotExist:
+            raise Supplier.DoesNotExist("找不到指定的產品")
+
+    materialList = []
+    sources = MaterialSource.objects.filter(supplier_id=supplierID)
+    if sources.exists():
+        for source in sources:
+            material = Material.objects.get(id=source.material_id)
+            materialList.append(material)
+    supplier.delete()
+    if len(materialList) > 0:
+        for material in materialList:
+            removeMaterial(material)
+
+
+def removeProduct(productID=None, product=None):
+    if product is None:
+        try:
+            product = Product.objects.get(id=productID) # 取得單一物件
+        except Product.DoesNotExist:
+            raise Product.DoesNotExist("找不到指定的產品")
+    elif productID is None:
+        productID = product.id
+    product.delete()

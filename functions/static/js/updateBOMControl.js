@@ -35,7 +35,7 @@ $(document).ready(function () {
         }
     });
 
-    $('#submitBOMForm').on('submit', function (e) {
+    $('#updateBOMForm').on('submit', function (e) {
         e.preventDefault(); // 防止默認表單提交，改用 AJAX 提交
         
         // 收集表單中的資料
@@ -89,22 +89,17 @@ $(document).ready(function () {
         }
         // 使用 AJAX 發送資料到後端
         $.ajax({
-            url: '/submitBOM', // 後端處理請求的 URL
+            url: '/updateBOM', // 後端處理請求的 URL
             type: 'POST',
             dataType: 'json',
             contentType: 'application/json',
             data: JSON.stringify(formData), // 將資料轉換為 JSON 字串
             success: function (response) {
                 if (response.success) {
-                    alert("新增成功！");
-                    $('#submitBOMForm')[0].reset();  // 重設表單內容
-                    // 如果有動態添加的行（例如材料行），也需要清空這些動態元素
-                    $('#materialContainer').empty(); // 清空材料容器
-                    const initialMaterialRow = generateMaterialRow();
-                    $('#materialContainer').append(initialMaterialRow);
-                    loadMaterialDropdown(initialMaterialRow.find('.dropdown-menu'));
+                    alert("修改成功！");
+                    window.location.href = '/showBOM';
                 } else {
-                    alert("新增失敗：" + response.message);
+                    alert("修改失敗：" + response.message);
                 }
             },
             error: function (xhr, status, error) {

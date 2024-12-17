@@ -40,6 +40,7 @@ urlpatterns = [
     path('submitMaterial', views.submitMaterial, name='submitMaterial'),
     path('updateMaterial', views.updateMaterial, name='updateMaterial'),
     path('submitBOM', views.submitBOM, name='submitBOM'),
+    path('updateBOM', views.updateBOM, name='updateBOM'),
     #生成表格
     path('getSupplierList', views.getSupplierList, name='getSupplierList'),
     path('getMaterialList', views.getMaterialList, name='getMaterialList'),
@@ -48,4 +49,8 @@ urlpatterns = [
     #刪除資料
     path('deleteSupplier', views.deleteSupplier, name='deleteSupplier'),
     path('deleteMaterial', views.deleteMaterial, name='deleteMaterial'),
+    path('deleteProduct', views.deleteProduct, name='deleteProduct'),
+
+    #修改資料
+    path('edit/<int:productID>/', views.edit_product, name='edit_product'),
 ]

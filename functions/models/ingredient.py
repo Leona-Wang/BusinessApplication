@@ -12,7 +12,6 @@ class Ingredient(models.Model):
 
     def save(self, *args, **kwargs):
         if self.material:
-            print(f"MaterialPrice {self.material.unitPrice} Unit:{self.unit}")
             # 使用 self.material 直接訪問關聯的 Material 實例，避免每次都查詢資料庫
             self.cost = int(self.unit) * int(self.material.unitPrice)
         super().save(*args, **kwargs)

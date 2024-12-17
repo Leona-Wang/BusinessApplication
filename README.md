@@ -14,3 +14,5 @@ from functions.models.product import Product
 product=Product.objects.get(id=12)
 product.delete()
 exit()
+products=Product.objects.all()
+products.delete()
