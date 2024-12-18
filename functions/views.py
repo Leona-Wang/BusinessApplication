@@ -7,6 +7,8 @@ from functions.models.materialSource import MaterialSource
 from functions.models.product import Product
 from functions.models.ingredient import Ingredient
 from functions.models.inventory import Inventory
+from functions.models.customer import Customer
+from functions.models.order import Order
 
 
 def index(request):
@@ -121,7 +123,7 @@ def deleteSupplier(request):
     if request.method == 'POST':
         supplierID = request.POST.get("id")
         try:
-            removeSupplier(supplierID)
+            removeSupplier(supplierID=supplierID)
             return JsonResponse({"success": True, "message": "資料刪除成功"})
         except Supplier.DoesNotExist:
             return JsonResponse({"success": False, "message": "供應商不存在"})
@@ -241,14 +243,13 @@ def deleteMaterial(request):
     if request.method == 'POST':
         materialID = request.POST.get("id")
         try:
-            removeMaterial(materialID)
+            removeMaterial(materialID=materialID)
             return JsonResponse({"success": True, "message": "資料刪除成功"})
         except Supplier.DoesNotExist:
             return JsonResponse({"success": False, "message": "原物料不存在"})
 
 
 def submitBOM(request):
-    print("out")
     if request.method == 'POST':
         # 從表單中獲取數據
         data = json.loads(request.body)
@@ -311,7 +312,6 @@ def getBOMList(request):
 def deleteProduct(request):
     if request.method == 'POST':
         productID = request.POST.get("id")
-        print(productID)
         try:
             removeProduct(productID=productID)
             return JsonResponse({"success": True, "message": "資料刪除成功"})
@@ -357,6 +357,95 @@ def updateBOM(request):
             except Product.DoesNotExist:
                 return JsonResponse({"success": False, "message": f"產品 {productName} 不存在"})
         return JsonResponse({"success": True, "message": "更新成功"})
+
+
+def submitCustomer(request):
+    if request.method == 'POST':
+        # 從表單中獲取數據
+        data = json.loads(request.body)
+
+        customerName = data.get('customerName')
+        customerPhone = data.get('customerPhone')
+
+        checkCustomerName = Customer.objects.filter(customerName=customerName)
+        checkCustomerPhone = Customer.objects.filter(customerPhone=customerPhone)
+
+        if checkCustomerName.exists() == False and checkCustomerPhone.exists() == False:
+            Customer.objects.create(customerName=customerName, customerPhone=customerPhone)
+            return JsonResponse({"success": True, "message": "更新成功"})
+        else:
+            return JsonResponse({"success": False, "message": "重複資料"})
+
+
+def getCustomerList(request):
+    try:
+        customerList = Customer.objects.all()
+        customerData = list(customerList.values('id', 'customerName', 'customerPhone'))
+        return JsonResponse(customerData, safe=False)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+def updateCustomer(request):
+    if request.method == 'POST':
+        customerID = request.POST.get("id")
+        customerName = request.POST.get("customerName")
+        customerPhone = request.POST.get("customerPhone")
+        try:
+            customer = Customer.objects.get(id=customerID)
+            customer.customerName = customerName
+            customer.customerPhone = customerPhone
+            customer.save()
+            return JsonResponse({"success": True, "message": "更新成功"})
+        except Supplier.DoesNotExist:
+            return JsonResponse({"success": False, "message": "供應商不存在"})
+
+
+def deleteCustomer(request):
+    if request.method == 'POST':
+        customerID = request.POST.get("id")
+        try:
+            removeCustomer(customerID=customerID)
+            return JsonResponse({"success": True, "message": "資料刪除成功"})
+        except Supplier.DoesNotExist:
+            return JsonResponse({"success": False, "message": "供應商不存在"})
+
+
+def submitOrder(request):
+    print("in")
+    if request.method == 'POST':
+        # 從表單中獲取數據
+        data = json.loads(request.body)
+
+        customerName = data.get('customerName')
+        orderType = data.get('type')
+        inputDay = data.get('inputDay')
+        customer = Customer.objects.get(customerName=customerName)
+        order = Order.objects.create(customer=customer, type=orderType)
+
+
+"""
+        checkProduct = Product.objects.filter(productName=productName)
+
+        if len(checkProduct) == 0:
+            Product.objects.create(productName=productName, productPrice=productPrice)
+            materials = data.get('materials', [])
+            print(f"lenth:{len(materials)}")
+            for material in materials:
+                materialName = material.get('materialName')
+                unit = material.get('unit')
+                try:
+                    materialID = Material.objects.get(materialName=materialName).id
+                    productID = Product.objects.get(productName=productName).id
+                    Ingredient.objects.create(material_id=materialID, product_id=productID, unit=unit)
+                except Material.DoesNotExist:
+                    return JsonResponse({"success": False, "message": f"材料 {materialName} 不存在"})
+                except Product.DoesNotExist:
+                    return JsonResponse({"success": False, "message": f"產品 {productName} 不存在"})
+            return JsonResponse({"success": True, "message": "更新成功"})
+        else:
+            return JsonResponse({"success": False, "message": "重複產品資料"})
+"""
 
 
 def removeMaterial(materialID=None, material=None):
@@ -410,3 +499,14 @@ def removeProduct(productID=None, product=None):
     elif productID is None:
         productID = product.id
     product.delete()
+
+
+def removeCustomer(customerID=None, customer=None):
+    if customer is None:
+        try:
+            customer = Customer.objects.get(id=customerID) # 取得單一物件
+        except Customer.DoesNotExist:
+            raise Product.DoesNotExist("找不到指定的客戶")
+    elif customerID is None:
+        customerID = customer.id
+    customer.delete()

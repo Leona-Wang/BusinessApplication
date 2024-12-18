@@ -10,7 +10,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>index</title>
+    <title>addSupplier</title>
 
     <!-- Custom fonts for this template-->
     <link href="{% static 'vendor/fontawesome-free/css/all.min.css' %}" rel="stylesheet" type="text/css">
@@ -32,7 +32,7 @@
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{% url 'index' %}">
                 <div class="sidebar-brand-icon">
                     <i class="bi bi-shop"></i>
                 </div>
@@ -44,7 +44,7 @@
 
             <!-- Nav Item - Dashboard -->
             <li class="nav-item">
-                <a class="nav-link" href="">
+                <a class="nav-link" href="{% url 'index' %}">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>回到主頁</span></a>
             </li>
@@ -59,7 +59,7 @@
 
             <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#BOM"
+                <a class="nav-link collapsed" data-toggle="collapse" data-target="#BOM"
                     aria-expanded="true" aria-controls="BOM">
                     <i class="bi bi-card-list"></i>
                     <span>BOM表</span>
@@ -69,13 +69,16 @@
                         <h6 class="collapse-header">BOM表功能:</h6>
                         <a class="collapse-item" href="{% url 'showBOM' %}">查詢/修改/刪除BOM表</a>
                         <a class="collapse-item" href="{% url 'addBOM' %}">新增BOM表項目</a>
+                        <h6 class="collapse-header">原物料功能:</h6>
+                        <a class="collapse-item" href="{% url 'showMaterial' %}">查詢/修改/刪除原物料</a>
+                        <a class="collapse-item" href="{% url 'addMaterial' %}">新增原物料品項</a>
                     </div>
                 </div>
             </li>
 
             <!-- Nav Item - Utilities Collapse Menu -->
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#inventory"
+                <a class="nav-link collapsed" data-toggle="collapse" data-target="#inventory"
                     aria-expanded="true" aria-controls="inventory">
                     <i class="bi bi-box-seam-fill"></i>
                     <span>存貨管理</span>
@@ -90,7 +93,7 @@
             </li>
             
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#suppliers"
+                <a class="nav-link collapsed" data-toggle="collapse" data-target="#suppliers"
                     aria-expanded="true" aria-controls="suppliers">
                     <i class="bi bi-building-fill"></i>
                     <span>供應商資訊</span>
@@ -99,7 +102,7 @@
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">供應商資訊功能:</h6>
                         <a class="collapse-item" href="{% url 'showSupplier' %}">查詢/修改/刪除供應商</a>
-                        <a class="collapse-item" href="{% url 'addSupplier' %}">新增供應商項目</a>
+                        <a class="collapse-item" href="{% url 'addSupplier' %}">新增供應商資訊</a>
                     </div>
                 </div>
             </li>
@@ -114,7 +117,7 @@
 
             <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#customer" aria-expanded="false" aria-controls="customer">
+                <a class="nav-link collapsed" data-toggle="collapse" data-target="#customer" aria-expanded="false" aria-controls="customer">
                     <i class="bi bi-person-circle"></i>
                     <span>顧客清單</span>
                 </a>
@@ -128,24 +131,24 @@
             </li>
             <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#order" aria-expanded="false" aria-controls="order">
+                <a class="nav-link collapsed" data-toggle="collapse" data-target="#order" aria-expanded="false" aria-controls="order">
                     <i class="bi bi-cart-fill"></i>
                     <span>訂單/購物紀錄</span>
                 </a>
                 <div id="order" class="collapse" aria-labelledby="headingOrder" data-parent="#accordionSidebar" style="">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">顧客訂單功能:</h6>
-                        <a class="collapse-item" href="login.html">查詢/修改/刪除訂單</a>
-                        <a class="collapse-item" href="register.html">新增訂單</a>
+                        <a class="collapse-item" href="{% url 'showOrder' %}">查詢/修改/刪除訂單</a>
+                        <a class="collapse-item" href="{% url 'addOrder' %}">新增訂單</a>
                         <h6 class="collapse-header">散客購物紀錄功能:</h6>
-                        <a class="collapse-item" href="login.html">查詢/修改/刪除散客購物紀錄</a>
-                        <a class="collapse-item" href="register.html">新增散客購物紀錄</a>
+                        <a class="collapse-item" href="{% url 'showWalkIn' %}">查詢/修改/刪除散客購物紀錄</a>
+                        <a class="collapse-item" href="{% url 'addWalkIn' %}">新增散客購物紀錄</a>
                     </div>
                 </div>
             </li>
             <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="{% url 'analysis' %}">
                     <i class="bi bi-clipboard-data-fill"></i>
                     <span>分析結果</span>
                 </a>
@@ -212,7 +215,7 @@
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-bell fa-fw"></i>
                                 <!-- Counter - Alerts -->
-                                <span class="badge badge-danger badge-counter">3+</span>
+                                <span class="badge badge-danger badge-counter"></span>
                             </a>
                             <!-- Dropdown - Alerts -->
                             <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
@@ -227,32 +230,10 @@
                                         </div>
                                     </div>
                                     <div>
-                                        <div class="small text-gray-500">December 12, 2019</div>
-                                        <span class="font-weight-bold">A new monthly report is ready to download!</span>
+                                        <div class="small text-gray-500"></div>
+                                        <span class="font-weight-bold"></span>
                                     </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="mr-3">
-                                        <div class="icon-circle bg-success">
-                                            <i class="fas fa-donate text-white"></i>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="small text-gray-500">December 7, 2019</div>
-                                        $290.29 has been deposited into your account!
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="mr-3">
-                                        <div class="icon-circle bg-warning">
-                                            <i class="fas fa-exclamation-triangle text-white"></i>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="small text-gray-500">December 2, 2019</div>
-                                        Spending Alert: We've noticed unusually high spending for your account.
-                                    </div>
-                                </a>
+                                
                                 <a class="dropdown-item text-center small text-gray-500" href="#">Show All Alerts</a>
                             </div>
                         </li>
@@ -263,7 +244,7 @@
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-envelope fa-fw"></i>
                                 <!-- Counter - Messages -->
-                                <span class="badge badge-danger badge-counter">7</span>
+                                <span class="badge badge-danger badge-counter"></span>
                             </a>
                             <!-- Dropdown - Messages -->
                             <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
@@ -278,8 +259,8 @@
                                         <div class="status-indicator bg-success"></div>
                                     </div>
                                     <div class="font-weight-bold">
-                                        <div class="text-truncate">Hi there! I am wondering if you can help me with a
-                                            problem I've been having.</div>
+                                        <div class="text-truncate">I have the photos that you ordered last month, how
+                                            would you like them sent to you?</div>
                                         <div class="small text-gray-500">Emily Fowler · 58m</div>
                                     </div>
                                 </a>
@@ -333,52 +314,75 @@
                 <!-- End of Topbar -->
 
                 <!-- Begin Page Content -->
-                <div class="container-fluid">
-
+                <div id="formContainer" class="container-fluid">
                     <!-- Page Heading -->
-                    <h1 class="h3 mb-0 text-gray-800 mb-4">歡迎回來</h1>
+                    <h1 class="h3 mb-0 text-gray-800 mb-4">新增供應商資訊</h1>
+                
+                    <!-- 表單容器 -->
+                    <form id="submitCustomerForm" method="post">
+                
+                        <!-- 輸入區塊容器 -->
+                        <div id="inputRowContainer">
+                            <!-- 這是第一組輸入框 -->
+                            <div class="row input-row">
+                                <!-- 供應商名稱 -->
+                                <div class="col-lg-6 mb-4">
+                                    <div class="card shadow mb-4">
+                                        <div class="card-header py-3">
+                                            <h6 class="m-0 font-weight-bold text-primary">客戶名稱</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="input-group">
+                                                <input type="text" id="customerName" class="customerName form-control bg-light border-1 small" placeholder="請輸入客戶名稱" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                
+                                <!-- 供應商電話 -->
+                                <div class="col-lg-6 mb-4">
+                                    <div class="card shadow mb-4">
+                                        <div class="card-header py-3">
+                                            <h6 class="m-0 font-weight-bold text-primary">客戶電話</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="input-group">
+                                                <input type="text" id="customerPhone" class="customerPhone form-control bg-light border-1 small" placeholder="請輸入客戶電話" required>
+                                            </div>
+                                            <div id="phoneError" class="phoneError" style="display: none;" class="mb-4">
+                                                <br>僅能輸入數字!
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 送出按鈕 -->
+                        <div class="row">
+                            <div class="col-lg-4 mb-4"></div>
+                            <div class="col-lg-4 mb-4 d-flex justify-content-center">
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="bi bi-send"></i> 送出
+                                </button>
+                            </div>
+                            <div class="col-lg-4 mb-4"></div>
+                        </div>
+                    </form>
                     <div class="row">
-                        <div class="col-lg-6 mb-4">
-                            <div class="card shadow mb-4">
-                                <div class="card-header py-3">
-                                    <h6 class="m-0 font-weight-bold text-primary">作業管理</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="dropdown no-arrow mb-4">
-                                        <button class="col-lg-12 btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            請選擇作業管理相關功能
-                                        </button>
-                                        <div class="col-lg-12 dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
-                                            <a class="dropdown-item" href="showBOM.html">BOM表</a>
-                                            <a class="dropdown-item" href="#">存貨管理</a>
-                                            <a class="dropdown-item" href="#">供應商資訊</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="col-lg-4 mb-4"></div>
+                        <div class="col-lg-4 mb-4 d-flex justify-content-center">
+                            <a href="{% url 'showCustomer' %}">
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="bi bi-card-list"></i> 查看客戶清單
+                                </button>
+                            </a>
                         </div>
-                        <div class="col-lg-6 mb-4">
-                            <div class="card shadow mb-4">
-                                <div class="card-header py-3">
-                                    <h6 class="m-0 font-weight-bold text-primary">顧客關係管理</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="dropdown no-arrow mb-4">
-                                        <button class="col-lg-12 btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            請選擇顧客關係管理相關功能
-                                        </button>
-                                        <div class="col-lg-12 dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
-                                            <a class="dropdown-item" href="#">顧客訂單</a>
-                                            <a class="dropdown-item" href="#">顧客清單</a>
-                                            <a class="dropdown-item" href="#">分析結果</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
+                        <div class="col-lg-4 mb-4"></div>
                     </div>
                 </div>
+                
+                
                 <!-- /.container-fluid -->
 
             </div>
@@ -434,6 +438,7 @@
 
     <!-- Custom scripts for all pages-->
     <script src="{% static 'js/sb-admin-2.min.js' %}"></script>
+    <script src="{% static 'js/addCustomerControl.js' %}"></script>
 
 </body>
 
