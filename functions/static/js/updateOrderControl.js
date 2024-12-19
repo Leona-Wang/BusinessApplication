@@ -28,7 +28,6 @@ const minDate = `${yyyy}-${mm}-${dd}`; // 格式化為 YYYY-MM-DD
  // 設置 input 的最小日期
 const dateInput = document.getElementById('dueDate');
 dateInput.min = minDate;
-dateInput.value = minDate; // 可選：默認值設為當天
 
 $(document).ready(function () {
     console.log("Document is ready!");

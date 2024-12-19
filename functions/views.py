@@ -9,6 +9,7 @@ from functions.models.ingredient import Ingredient
 from functions.models.inventory import Inventory
 from functions.models.customer import Customer
 from functions.models.order import Order
+from functions.models.orderDetail import OrderDetail
 
 
 def index(request):
@@ -319,7 +320,7 @@ def deleteProduct(request):
             return JsonResponse({"success": False, "message": "產品不存在"})
 
 
-def edit_product(request, productID):
+def editProduct(request, productID):
     print(f"Editing product with ID: {productID}")
     product = get_object_or_404(Product, id=productID)
 
@@ -408,7 +409,7 @@ def deleteCustomer(request):
             removeCustomer(customerID=customerID)
             return JsonResponse({"success": True, "message": "資料刪除成功"})
         except Supplier.DoesNotExist:
-            return JsonResponse({"success": False, "message": "供應商不存在"})
+            return JsonResponse({"success": False, "message": "客戶不存在"})
 
 
 def submitOrder(request):
@@ -422,30 +423,133 @@ def submitOrder(request):
         inputDay = data.get('inputDay')
         customer = Customer.objects.get(customerName=customerName)
         order = Order.objects.create(customer=customer, type=orderType)
-
-
-"""
-        checkProduct = Product.objects.filter(productName=productName)
-
-        if len(checkProduct) == 0:
-            Product.objects.create(productName=productName, productPrice=productPrice)
-            materials = data.get('materials', [])
-            print(f"lenth:{len(materials)}")
-            for material in materials:
-                materialName = material.get('materialName')
-                unit = material.get('unit')
-                try:
-                    materialID = Material.objects.get(materialName=materialName).id
-                    productID = Product.objects.get(productName=productName).id
-                    Ingredient.objects.create(material_id=materialID, product_id=productID, unit=unit)
-                except Material.DoesNotExist:
-                    return JsonResponse({"success": False, "message": f"材料 {materialName} 不存在"})
-                except Product.DoesNotExist:
-                    return JsonResponse({"success": False, "message": f"產品 {productName} 不存在"})
-            return JsonResponse({"success": True, "message": "更新成功"})
+        if orderType == 'oneTime':
+            orderDate = inputDay
+            order.orderDate = inputDay
         else:
-            return JsonResponse({"success": False, "message": "重複產品資料"})
-"""
+            dayList = inputDay.split(',')
+            for day in dayList:
+                match day:
+                    case "Mon":
+                        order.mon = 1
+                    case "Tue":
+                        order.tue = 1
+                    case "Wed":
+                        order.wed = 1
+                    case "Thu":
+                        order.thu = 1
+                    case "Fri":
+                        order.fri = 1
+        order.save()
+        products = data.get('products', [])
+        for product in products:
+            productName = product.get('productName')
+            amount = product.get('amount')
+            product = Product.objects.get(productName=productName)
+            try:
+                OrderDetail.objects.create(order=order, product=product, amount=amount)
+            except Product.DoesNotExist:
+                return JsonResponse({"success": False, "message": f"產品 {productName} 不存在"})
+        return JsonResponse({"success": True, "message": "更新成功"})
+
+
+def deleteOrder(request):
+    if request.method == 'POST':
+        orderID = request.POST.get("id")
+        try:
+            removeOrder(orderID=orderID)
+            return JsonResponse({"success": True, "message": "資料刪除成功"})
+        except Supplier.DoesNotExist:
+            return JsonResponse({"success": False, "message": "訂單不存在"})
+
+
+def getOneTimeOrderList(request):
+    try:
+        orders = Order.objects.filter(type="oneTime")
+        oneTimeOrderList = []
+        for order in orders:
+            orderID = order.id
+            customer = order.customer
+            customerName = customer.customerName
+            customerPhone = customer.customerPhone
+            orderDate = order.orderDate
+            orderDate = orderDate.strftime("%Y-%m-%d")
+            orderDetails = OrderDetail.objects.filter(order=order)
+            productNameList = []
+            amountList = []
+            for orderDetail in orderDetails:
+                product = orderDetail.product
+                productNameList.append(product.productName)
+                amountList.append(orderDetail.amount)
+            oneTimeOrderData = {
+                'id': orderID,
+                'customerName': customerName,
+                'customerPhone': customerPhone,
+                'orderDate': orderDate,
+                'productNames': productNameList,
+                'amounts': amountList
+            }
+            oneTimeOrderList.append(oneTimeOrderData)
+        return JsonResponse(oneTimeOrderList, safe=False)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+def getRecurringOrderList(request):
+    try:
+        orders = Order.objects.filter(type="recurring")
+        recurringOrderList = []
+        for order in orders:
+            orderID = order.id
+            customer = order.customer
+            customerName = customer.customerName
+            customerPhone = customer.customerPhone
+            orderDays = []
+            if order.mon == 1:
+                orderDays.append("一")
+            if order.tue == 1:
+                orderDays.append("二")
+            if order.wed == 1:
+                orderDays.append("三")
+            if order.thu == 1:
+                orderDays.append("四")
+            if order.fri == 1:
+                orderDays.append("五")
+            orderDetails = OrderDetail.objects.filter(order=order)
+            productNameList = []
+            amountList = []
+            for orderDetail in orderDetails:
+                product = orderDetail.product
+                productNameList.append(product.productName)
+                amountList.append(orderDetail.amount)
+            recurringOrderData = {
+                'id': orderID,
+                'customerName': customerName,
+                'customerPhone': customerPhone,
+                'orderDate': ''.join(orderDays),
+                'productNames': productNameList,
+                'amounts': amountList
+            }
+            recurringOrderList.append(recurringOrderData)
+        return JsonResponse(recurringOrderList, safe=False)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+def editOrder(request, orderID):
+    print(f"Editing product with ID: {orderID}")
+    order = get_object_or_404(Order, id=orderID)
+    customers = Customer.objects.all()
+    orderDetails = OrderDetail.objects.filter(order=order)
+    products = Product.objects.all()
+    return render(
+        request, 'updateOrder.html', {
+            'order': order,
+            'customers': customers,
+            'orderDetails': orderDetails,
+            'products': products
+        }
+    )
 
 
 def removeMaterial(materialID=None, material=None):
@@ -510,3 +614,14 @@ def removeCustomer(customerID=None, customer=None):
     elif customerID is None:
         customerID = customer.id
     customer.delete()
+
+
+def removeOrder(orderID=None, order=None):
+    if order is None:
+        try:
+            order = Order.objects.get(id=orderID) # 取得單一物件
+        except Order.DoesNotExist:
+            raise Product.DoesNotExist("找不到指定的訂單")
+    elif orderID is None:
+        orderID = order.id
+    order.delete()

@@ -27,7 +27,7 @@ function getIngredientList() {
                         <td rowspan="${materialNames.length}">${productPrice}</td>
                         <td>${materialNames[0]}</td>
                         <td>${units[0]}</td>
-                        <td rowspan="${materialNames.length}"><a class="modifyButton btn btn-info btn-icon-split" href="/edit/${productID}/"><span class="icon text-white-50"><i class="fas fa-info-circle"></i></span><span class="text">修改</span></a></td>
+                        <td rowspan="${materialNames.length}"><a class="modifyButton btn btn-info btn-icon-split" href="/editProduct/${productID}/"><span class="icon text-white-50"><i class="fas fa-info-circle"></i></span><span class="text">修改</span></a></td>
                         <td rowspan="${materialNames.length}"><a class="deleteButton btn btn-danger btn-icon-split" data-product-id="${productID}"><span class="icon text-white-50"><i class="fas fa-trash"></i></span><span class="text">刪除</span></a></td>
                     </tr>
                 `;
