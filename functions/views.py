@@ -413,7 +413,6 @@ def deleteCustomer(request):
 
 
 def submitOrder(request):
-    print("in")
     if request.method == 'POST':
         # 從表單中獲取數據
         data = json.loads(request.body)
@@ -552,6 +551,124 @@ def editOrder(request, orderID):
     )
 
 
+def updateOrder(request):
+    if request.method == 'POST':
+        # 從表單中獲取數據
+        data = json.loads(request.body)
+
+        orderID = data.get('orderID')
+        order = Order.objects.get(id=orderID)
+        customerName = data.get('customerName')
+        orderType = data.get('type')
+        inputDay = data.get('inputDay')
+        order.type = orderType
+        if orderType == 'oneTime':
+            order.orderDate = inputDay
+        else:
+            dayList = inputDay.split(',')
+            order.mon = 0
+            order.tue = 0
+            order.wed = 0
+            order.thu = 0
+            order.fri = 0
+            for day in dayList:
+                match day:
+                    case "Mon":
+                        order.mon = 1
+                    case "Tue":
+                        order.tue = 1
+                    case "Wed":
+                        order.wed = 1
+                    case "Thu":
+                        order.thu = 1
+                    case "Fri":
+                        order.fri = 1
+        order.save()
+        orderDetail = OrderDetail.objects.filter(order=order)
+        orderDetail.delete()
+        products = data.get('products', [])
+        for product in products:
+            productName = product.get('productName')
+            amount = product.get('amount')
+            product = Product.objects.get(productName=productName)
+            try:
+                OrderDetail.objects.create(order=order, product=product, amount=amount)
+            except Product.DoesNotExist:
+                return JsonResponse({"success": False, "message": f"產品 {productName} 不存在"})
+        return JsonResponse({"success": True, "message": "更新成功"})
+
+
+def submitInventory(request):
+    if request.method == 'POST':
+        # 從表單中獲取數據
+        data = json.loads(request.body)
+        try:
+            materialName = data.get('materialName')
+            importDate = data.get('importDate')
+            amount = data.get('amount')
+            material = Material.objects.get(materialName=materialName)
+            Inventory.objects.create(material=material, importDate=importDate, importPack=amount)
+        except Material.DoesNotExist:
+            return JsonResponse({"success": False, "message": f"產品 {materialName} 不存在"})
+        return JsonResponse({"success": True, "message": "更新成功"})
+
+
+def getInventoryList(request):
+    try:
+        inventories = Inventory.objects.all().order_by('expiredDate')
+
+        inventoryList = []
+        for inventory in inventories:
+            materialName = inventory.material.materialName
+            inventoryData = {
+                'id': inventory.id,
+                'importPack': inventory.importPack,
+                'importAmount': inventory.importAmount,
+                'expiredDate': inventory.expiredDate,
+                'materialName': materialName,
+                'importDate': inventory.importDate,
+            }
+            inventoryList.append(inventoryData)
+
+        return JsonResponse(inventoryList, safe=False)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+def updateInventory(request):
+    if request.method == 'POST':
+        # 從表單中獲取數據
+        data = json.loads(request.body)
+        try:
+            inventoryID = data.get('id')
+            print(inventoryID)
+            inventory = Inventory.objects.get(id=inventoryID)
+            materialName = data.get('materialName').strip()
+            print(materialName)
+            material = Material.objects.get(materialName=materialName)
+            importPack = data.get('importPack')
+            print(importPack)
+            importDate = data.get('importDate')
+            print(importDate)
+            inventory.material = material
+            inventory.importPack = importPack
+            inventory.importDate = importDate
+            inventory.save()
+        except Material.DoesNotExist:
+            return JsonResponse({"success": False, "message": f"產品 {materialName} 不存在"})
+        return JsonResponse({"success": True, "message": "更新成功"})
+
+
+def deleteInventory(request):
+    if request.method == 'POST':
+        inventoryID = request.POST.get("id")
+        try:
+            removeInventory(inventoryID=inventoryID)
+            return JsonResponse({"success": True, "message": "資料刪除成功"})
+        except Supplier.DoesNotExist:
+            return JsonResponse({"success": False, "message": "訂單不存在"})
+
+
 def removeMaterial(materialID=None, material=None):
     if materialID is None:
         materialID = material.id
@@ -625,3 +742,14 @@ def removeOrder(orderID=None, order=None):
     elif orderID is None:
         orderID = order.id
     order.delete()
+
+
+def removeInventory(inventoryID=None, inventory=None):
+    if inventory is None:
+        try:
+            inventory = Inventory.objects.get(id=inventoryID) # 取得單一物件
+        except Inventory.DoesNotExist:
+            raise Inventory.DoesNotExist("找不到")
+    elif inventoryID is None:
+        inventoryID = inventory.id
+    inventory.delete()

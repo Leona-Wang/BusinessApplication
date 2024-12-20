@@ -44,6 +44,9 @@ urlpatterns = [
     path('submitCustomer', views.submitCustomer, name='submitCustomer'),
     path('updateCustomer', views.updateCustomer, name='updateCustomer'),
     path('submitOrder', views.submitOrder, name='submitOrder'),
+    path('updateOrder', views.updateOrder, name='updateOrder'),
+    path('submitInventory', views.submitInventory, name='submitInventory'),
+    path('updateInventory', views.updateInventory, name='updateInventory'),
 
     #生成表格
     path('getSupplierList', views.getSupplierList, name='getSupplierList'),
@@ -52,6 +55,7 @@ urlpatterns = [
     path('getCustomerList', views.getCustomerList, name='getCustomerList'),
     path('getOneTimeOrderList', views.getOneTimeOrderList, name='getOneTimeOrderList'),
     path('getRecurringOrderList', views.getRecurringOrderList, name='getRecurringOrderList'),
+    path('getInventoryList', views.getInventoryList, name='getInventoryList'),
 
     #刪除資料
     path('deleteSupplier', views.deleteSupplier, name='deleteSupplier'),
@@ -59,6 +63,8 @@ urlpatterns = [
     path('deleteProduct', views.deleteProduct, name='deleteProduct'),
     path('deleteCustomer', views.deleteCustomer, name='deleteCustomer'),
     path('deleteOrder', views.deleteOrder, name='deleteOrder'),
+    path('deleteInventory', views.deleteInventory, name='deleteInventory'),
+
     #修改資料
     path('editProduct/<int:productID>/', views.editProduct, name='editProduct'),
     path('editOrder/<int:orderID>/', views.editOrder, name='editOrder'),

@@ -178,7 +178,12 @@ $(document).ready(function () {
         e.preventDefault(); // 防止默認表單提交，改用 AJAX 提交
         let customerName=$('#customerDropdownButton').text().trim();
         let type = document.querySelector('input[name="orderType"]:checked').value;
-        
+        let isValid = true; // 初始化表單有效性標誌
+        if (customerName==="請選擇客戶"){
+            alert("請選擇客戶！");
+            isValid = false;
+            return false;
+        }
         // 動態取得對應輸入框的值
         let inputDay = null;
 
@@ -187,12 +192,22 @@ $(document).ready(function () {
             const oneTimeInput = document.querySelector('#oneTimeDay input[name="dueDate"]');
             if (oneTimeInput && oneTimeInput.offsetParent !== null) {
                 inputDay = oneTimeInput.value;
+            }else{
+                alert("請輸入交貨日期!");
+                isValid = false;
+                return false;
             }
         } else if (type === 'recurring') {
             // 固定訂單 => 取所有被選中的 checkbox
             const recurringInputs = document.querySelectorAll('#recurringDay input[type="checkbox"]:checked');
             inputDay = Array.from(recurringInputs).map(checkbox => checkbox.value).join(',');
+            if (!inputDay){
+                alert("請選擇至少一個交貨日!");
+                isValid = false;
+                return false;
+            }
         }
+        
         
         // 收集表單中的資料
         let formData = {
@@ -203,7 +218,7 @@ $(document).ready(function () {
         };
         
         let productNames = [];
-        let isValid = true; // 初始化表單有效性標誌
+        
     
         $('#productContainer .input-row').each(function () {
             let productName = $(this).find('.productDropdown').text().trim();

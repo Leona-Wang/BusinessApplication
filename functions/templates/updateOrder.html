@@ -187,7 +187,7 @@
 
                         <!-- Nav Item - Search Dropdown (Visible Only XS) -->
                         <li class="nav-item dropdown no-arrow d-sm-none">
-                            <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button"
+                            <a class="nav-link dropdown-toggle" id="searchDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-search fa-fw"></i>
                             </a>
@@ -211,7 +211,7 @@
 
                         <!-- Nav Item - Alerts -->
                         <li class="nav-item dropdown no-arrow mx-1">
-                            <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
+                            <a class="nav-link dropdown-toggle" id="alertsDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-bell fa-fw"></i>
                                 <!-- Counter - Alerts -->
@@ -317,6 +317,7 @@
                 <div id="formContainer" class="container-fluid">
                     <!-- Page Heading -->
                     <h1 class="h3 mb-0 text-gray-800 mb-4">修改訂單</h1>
+                    <input type="hidden" id="orderID" value="{{ order.id }}">
                 
                     <!-- 表單容器 -->
                     <form id="updateOrderForm" method="post">
@@ -329,7 +330,7 @@
                                         </div>
                                         <div class="card-body">
                                             <div class="dropdown materialName no-arrow mb-4">
-                                                <button class="col-lg-12 btn btn-secondary dropdown-toggle" type="button" id="customerDropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <button class="col-lg-12 btn btn-secondary dropdown-toggle" type="button" id="customerDropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" disabled>
                                                     {{ order.customer.customerName }}
                                                 </button>
                                                 <div id="customerDropdown" class="col-lg-12 dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
@@ -350,11 +351,13 @@
                                         <div class="card-body">
                                             <div class="input-group">
                                                 <label class="form-control bg-light border-1 small">
-                                                    <input type="radio" name="orderType" value="oneTime" {% if order.type == 'oneTime' %}checked{% endif %} disabled>
+                                                    <input type="radio" name="orderType" value="oneTime" 
+                                                        {% if order.type == 'oneTime' %}checked{% endif %}>
                                                     單次訂單
                                                 </label>
                                                 <label class="form-control bg-light border-1 small">
-                                                    <input type="radio" name="orderType" value="recurring" {% if order.type == 'recurring' %}checked{% endif %} disabled>
+                                                    <input type="radio" name="orderType" value="recurring" 
+                                                        {% if order.type == 'recurring' %}checked{% endif %}>
                                                     固定訂單
                                                 </label>
                                             </div>
@@ -367,46 +370,39 @@
                                         <div class="card-header py-3">
                                             <h6 class="m-0 font-weight-bold text-primary">交貨日</h6>
                                         </div>
-                                        {% if order.type == 'oneTime' %}
-                                        <div class="card-body" id="oneTimeDay">
+                                        <div class="card-body" id="oneTimeDay" {% if order.type != 'oneTime' %}style="display: none;"{% endif %}>
                                             <div class="input-group">
                                                 <input type="date" class="form-control bg-light border-1 small" id="dueDate" name="dueDate" value="{{ order.orderDate|date:'Y-m-d' }}">
                                             </div>
                                             <div><br></div>
                                         </div>
-                                        {% elif order.type == 'recurring' %}
-                                        <div class="card-body" id="recurringDay">
+                                        <div class="card-body" id="recurringDay" {% if order.type != 'recurring' %}style="display: none;"{% endif %}>
                                             <div class="input-group">
                                                 <label class="form-control bg-light border-1 small">
-                                                    <input type="checkbox" name="validDay" value="Mon" {% if order.mon == 1 %}checked{% endif %}>
-                                                    一
+                                                    <input type="checkbox" name="validDay" value="Mon" {% if order.mon == 1 %}checked{% endif %}> 一
                                                 </label>
                                                 <label class="form-control bg-light border-1 small">
-                                                    <input type="checkbox" name="validDay" value="Tue" {% if order.tue == 1 %}checked{% endif %}>
-                                                    二
+                                                    <input type="checkbox" name="validDay" value="Tue" {% if order.tue == 1 %}checked{% endif %}> 二
                                                 </label>
                                                 <label class="form-control bg-light border-1 small">
-                                                    <input type="checkbox" name="validDay" value="Wed" {% if order.wed == 1 %}checked{% endif %}>
-                                                    三
+                                                    <input type="checkbox" name="validDay" value="Wed" {% if order.wed == 1 %}checked{% endif %}> 三
                                                 </label>
                                                 <label class="form-control bg-light border-1 small">
-                                                    <input type="checkbox" name="validDay" value="Thu" {% if order.thu == 1 %}checked{% endif %}>
-                                                    四
+                                                    <input type="checkbox" name="validDay" value="Thu" {% if order.thu == 1 %}checked{% endif %}> 四
                                                 </label>
                                                 <label class="form-control bg-light border-1 small">
-                                                    <input type="checkbox" name="validDay" value="Fri" {% if order.fri == 1 %}checked{% endif %}>
-                                                    五
+                                                    <input type="checkbox" name="validDay" value="Fri" {% if order.fri == 1 %}checked{% endif %}> 五
                                                 </label>
                                             </div>
                                             <div><br></div>
                                         </div>
-                                        {% endif %}
                                     </div>
                                 </div>
+                                
                             </div>
                     
                             <!-- 材料選擇區域 -->
-                            <div id="materialContainer">
+                            <div id="productContainer">
                                 {% for orderDetail in orderDetails %}
                                     <div class="row input-row">
                                         <div class="col-lg-4 mb-4">
@@ -420,9 +416,6 @@
                                                             {{ orderDetail.product.productName }}
                                                         </button>
                                                         <div class="col-lg-12 dropdown-menu">
-                                                            {% for product in products %}
-                                                                <a class="dropdown-item" href="#">{{ product.productName }}</a>
-                                                            {% endfor %}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -480,9 +473,9 @@
                     <div class="row">
                         <div class="col-lg-4 mb-4"></div>
                         <div class="col-lg-4 mb-4 d-flex justify-content-center">
-                            <a href="{% url 'showBOM' %}">
+                            <a href="{% url 'showOrder' %}">
                                 <button class="btn btn-primary" type="submit">
-                                    <i class="bi bi-card-list"></i> 查看BOM表
+                                    <i class="bi bi-card-list"></i> 查看訂單
                                 </button>
                             </a>
                         </div>
