@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 from django.shortcuts import get_object_or_404, render
 from django.http import JsonResponse
 from functions.models.supplier import Supplier
@@ -464,7 +465,7 @@ def deleteOrder(request):
 
 def getOneTimeOrderList(request):
     try:
-        orders = Order.objects.filter(type="oneTime")
+        orders = Order.objects.filter(type="oneTime").order_by('-orderDate')
         oneTimeOrderList = []
         for order in orders:
             orderID = order.id
@@ -531,6 +532,82 @@ def getRecurringOrderList(request):
             }
             recurringOrderList.append(recurringOrderData)
         return JsonResponse(recurringOrderList, safe=False)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+def getTodayOrderList(request):
+    try:
+        today = datetime.now().date()
+        oneTimeOrders = Order.objects.filter(type="oneTime", orderDate__date=today)
+        todayOrderList = []
+        for oneTimeOrder in oneTimeOrders:
+            orderID = oneTimeOrder.id
+            customer = oneTimeOrder.customer
+            customerName = customer.customerName
+            customerPhone = customer.customerPhone
+            orderDate = oneTimeOrder.orderDate
+            orderDate = orderDate.strftime("%Y-%m-%d")
+            orderDetails = OrderDetail.objects.filter(order=oneTimeOrder)
+            productNameList = []
+            amountList = []
+            for orderDetail in orderDetails:
+                product = orderDetail.product
+                productNameList.append(product.productName)
+                amountList.append(orderDetail.amount)
+            oneTimeOrderData = {
+                'id': orderID,
+                'customerName': customerName,
+                'customerPhone': customerPhone,
+                'orderDate': orderDate,
+                'productNames': productNameList,
+                'amounts': amountList
+            }
+            todayOrderList.append(oneTimeOrderData)
+        weekdayMap = {
+            0: 'mon',
+            1: 'tue',
+            2: 'wed',
+            3: 'thu',
+            4: 'fri',
+        }
+        todayDay = datetime.now().weekday() # 獲取 0-6 的值
+        todayColumn = weekdayMap.get(todayDay)
+        if todayColumn:
+            recurringOrders = Order.objects.filter(**{todayColumn: 1})
+            for recurringOrder in recurringOrders:
+                orderID = recurringOrder.id
+                customer = recurringOrder.customer
+                customerName = customer.customerName
+                customerPhone = customer.customerPhone
+                orderDays = []
+                if recurringOrder.mon == 1:
+                    orderDays.append("一")
+                if recurringOrder.tue == 1:
+                    orderDays.append("二")
+                if recurringOrder.wed == 1:
+                    orderDays.append("三")
+                if recurringOrder.thu == 1:
+                    orderDays.append("四")
+                if recurringOrder.fri == 1:
+                    orderDays.append("五")
+                orderDetails = OrderDetail.objects.filter(order=recurringOrder)
+                productNameList = []
+                amountList = []
+                for orderDetail in orderDetails:
+                    product = orderDetail.product
+                    productNameList.append(product.productName)
+                    amountList.append(orderDetail.amount)
+                recurringOrderData = {
+                    'id': orderID,
+                    'customerName': customerName,
+                    'customerPhone': customerPhone,
+                    'orderDate': ''.join(orderDays),
+                    'productNames': productNameList,
+                    'amounts': amountList
+                }
+                todayOrderList.append(recurringOrderData)
+        return JsonResponse(todayOrderList, safe=False)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 

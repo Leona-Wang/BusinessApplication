@@ -56,6 +56,7 @@ urlpatterns = [
     path('getCustomerList', views.getCustomerList, name='getCustomerList'),
     path('getOneTimeOrderList', views.getOneTimeOrderList, name='getOneTimeOrderList'),
     path('getRecurringOrderList', views.getRecurringOrderList, name='getRecurringOrderList'),
+    path('getTodayOrderList', views.getTodayOrderList, name='getTodayOrderList'),
     path('getInventoryList', views.getInventoryList, name='getInventoryList'),
     #刪除資料
     path('deleteSupplier', views.deleteSupplier, name='deleteSupplier'),

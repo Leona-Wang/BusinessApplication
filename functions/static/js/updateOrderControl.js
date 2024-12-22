@@ -18,7 +18,7 @@ orderTypeInputs.forEach(input => {
 });
 
  // 獲取當前日期
-const today = new Date();
+/*const today = new Date();
 const yyyy = today.getFullYear();
 const mm = String(today.getMonth() + 1).padStart(2, '0'); // 月份補0
 const dd = String(today.getDate()).padStart(2, '0'); // 日期補0
@@ -27,7 +27,7 @@ const minDate = `${yyyy}-${mm}-${dd}`; // 格式化為 YYYY-MM-DD
 
  // 設置 input 的最小日期
 const dateInput = document.getElementById('dueDate');
-dateInput.min = minDate;
+dateInput.min = minDate;*/
 
 $(document).ready(function () {
     const orderID= document.getElementById('orderID').value;
@@ -189,10 +189,9 @@ $(document).ready(function () {
         let inputDay = null;
 
         if (type === 'oneTime') {
-            // 單次訂單 => 取交貨日 (oneTimeDay)
             const oneTimeInput = document.querySelector('#oneTimeDay input[name="dueDate"]');
-            if (oneTimeInput && oneTimeInput.offsetParent !== null) {
-                inputDay = oneTimeInput.value;
+            if (oneTimeInput.value.trim() !== '') {
+                inputDay = oneTimeInput.value.trim();
             }else{
                 alert("請輸入交貨日期!");
                 isValid = false;
@@ -268,10 +267,10 @@ $(document).ready(function () {
             data: JSON.stringify(formData), // 將資料轉換為 JSON 字串
             success: function (response) {
                 if (response.success) {
-                    alert("新增成功！");
+                    alert("修改成功！");
                     window.location.href = '/showOrder';
                 } else {
-                    alert("新增失敗：" + response.message);
+                    alert("修改失敗：" + response.message);
                 }
             },
             error: function (xhr, status, error) {

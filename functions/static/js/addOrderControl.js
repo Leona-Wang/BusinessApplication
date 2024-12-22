@@ -18,7 +18,7 @@ orderTypeInputs.forEach(input => {
 });
 
  // 獲取當前日期
-const today = new Date();
+/*const today = new Date();
 const yyyy = today.getFullYear();
 const mm = String(today.getMonth() + 1).padStart(2, '0'); // 月份補0
 const dd = String(today.getDate()).padStart(2, '0'); // 日期補0
@@ -29,7 +29,7 @@ const minDate = `${yyyy}-${mm}-${dd}`; // 格式化為 YYYY-MM-DD
 const dateInput = document.getElementById('dueDate');
 dateInput.min = minDate;
 dateInput.value = minDate; // 可選：默認值設為當天
-
+*/
 $(document).ready(function () {
     console.log("Document is ready!");
 
@@ -190,8 +190,8 @@ $(document).ready(function () {
         if (type === 'oneTime') {
             // 單次訂單 => 取交貨日 (oneTimeDay)
             const oneTimeInput = document.querySelector('#oneTimeDay input[name="dueDate"]');
-            if (oneTimeInput && oneTimeInput.offsetParent !== null) {
-                inputDay = oneTimeInput.value;
+            if (oneTimeInput.value.trim() !== '') {
+                inputDay = oneTimeInput.value.trim();
             }else{
                 alert("請輸入交貨日期!");
                 isValid = false;
