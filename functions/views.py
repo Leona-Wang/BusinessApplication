@@ -1,5 +1,7 @@
 import json
 from datetime import datetime
+from collections import defaultdict
+from django.db.models import F
 from django.shortcuts import get_object_or_404, render
 from django.http import JsonResponse
 from functions.models.supplier import Supplier
@@ -62,6 +64,7 @@ def addOrder(request):
 
 
 def showOrder(request):
+    a = getSaleAverage()
     return render(request, 'showOrder.html')
 
 
@@ -830,3 +833,30 @@ def removeInventory(inventoryID=None, inventory=None):
     elif inventoryID is None:
         inventoryID = inventory.id
     inventory.delete()
+
+
+def getSalePrediction():
+    recurringOrders = Order.objects.filter(type="recurring"
+                                          ).annotate(sellCount=F('mon') + F('tue') + F('wed') + F('thu') + F('fri'))
+    #取最靠近的前10筆資料(近兩個禮拜)
+    oneTimeOrders = Order.objects.filter(type="oneTime").order_by('-orderDate')[:10]
+
+    recurringDict = defaultdict(int)
+    for recurringOrder in recurringOrders:
+        orderDetails = OrderDetail.objects.filter(order=recurringOrder)
+        for orderDetail in orderDetails:
+            ingredients = Ingredient.objects.filter(product=orderDetail.product)
+            for ingredient in ingredients:
+                recurringDict[ingredient.material.id
+                             ] += int(orderDetail.amount) * int(ingredient.unit) * int(recurringOrder.sellCount)
+    predictDict = defaultdict(int)
+    for oneTimeOrder in oneTimeOrders:
+        orderDetails = OrderDetail.objects.filter(order=oneTimeOrder)
+        for orderDetail in orderDetails:
+            ingredients = Ingredient.objects.filter(product=orderDetail.product)
+            for ingredient in ingredients:
+                predictDict[ingredient.material.id] += int(orderDetail.amount) * int(ingredient.unit)
+    predictDict = {key: round(value / 2) for key, value in predictDict.items()}
+    recurringDict = dict(recurringDict)
+    predictDict = dict(predictDict)
+    return recurringDict, predictDict
