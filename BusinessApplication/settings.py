@@ -30,7 +30,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'django.contrib.admin', 'django.contrib.auth', 'django.contrib.contenttypes', 'django.contrib.sessions',
-    'django.contrib.messages', 'django.contrib.staticfiles', 'functions'
+    'django.contrib.messages', 'django.contrib.staticfiles', 'functions', 'django_celery_results'
 ]
 
 MIDDLEWARE = [
@@ -114,3 +114,16 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+"""
+# 配置 Celery 使用 Django 數據庫作為結果存儲後端
+CELERY_RESULT_BACKEND = 'django-db'
+
+# 設定 Celery 任務的 broker，這裡選擇用 Django 作為消息代理
+CELERY_BROKER_URL = 'django://'
+
+# 設置 Celery 任務結果存儲後端
+CELERY_RESULT_BACKEND = 'django-db'
+
+# 配置 Celery 任務的調度器
+CELERY_TIMEZONE = 'Asia/Taipei' # 設定時區
+"""

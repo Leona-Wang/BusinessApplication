@@ -7,3 +7,4 @@ from .inventory import Inventory
 from .order import Order
 from .orderDetail import OrderDetail
 from .customer import Customer
+from .refreshRecord import RefreshRecord

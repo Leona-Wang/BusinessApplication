@@ -1,9 +1,13 @@
 import json
-from datetime import datetime
-from collections import defaultdict
+import statistics
+import math
+from datetime import datetime, timedelta
+from collections import defaultdict, Counter
 from django.db.models import F
 from django.shortcuts import get_object_or_404, render
 from django.http import JsonResponse
+from django.db import transaction
+from django.db.models import Sum
 from functions.models.supplier import Supplier
 from functions.models.material import Material
 from functions.models.materialSource import MaterialSource
@@ -13,6 +17,7 @@ from functions.models.inventory import Inventory
 from functions.models.customer import Customer
 from functions.models.order import Order
 from functions.models.orderDetail import OrderDetail
+from functions.models.refreshRecord import RefreshRecord
 
 
 def index(request):
@@ -40,6 +45,7 @@ def addInventory(request):
 
 
 def showInventory(request):
+    refreshQuantity()
     return render(request, 'showInventory.html')
 
 
@@ -64,7 +70,6 @@ def addOrder(request):
 
 
 def showOrder(request):
-    a = getSaleAverage()
     return render(request, 'showOrder.html')
 
 
@@ -835,11 +840,79 @@ def removeInventory(inventoryID=None, inventory=None):
     inventory.delete()
 
 
-def getSalePrediction():
+def getImportAmount():
     recurringOrders = Order.objects.filter(type="recurring"
                                           ).annotate(sellCount=F('mon') + F('tue') + F('wed') + F('thu') + F('fri'))
-    #取最靠近的前10筆資料(近兩個禮拜)
-    oneTimeOrders = Order.objects.filter(type="oneTime").order_by('-orderDate')[:10]
+
+    recurringDict = defaultdict(list)
+    for recurringOrder in recurringOrders:
+        orderDetails = OrderDetail.objects.filter(order=recurringOrder)
+        for orderDetail in orderDetails:
+            ingredients = Ingredient.objects.filter(product=orderDetail.product)
+            for ingredient in ingredients:
+                recurringDict[ingredient.material.id].append(
+                    int(orderDetail.amount) * int(ingredient.unit) * int(recurringOrder.sellCount)
+                )
+
+    #取前20筆(一個月)
+    oneTimeOrders = Order.objects.filter(type="oneTime").order_by('-orderDate')[:20]
+
+    predictDict = defaultdict(list) # 每個 id 對應多個數據
+    for oneTimeOrder in oneTimeOrders:
+        orderDetails = OrderDetail.objects.filter(order=oneTimeOrder)
+        for orderDetail in orderDetails:
+            ingredients = Ingredient.objects.filter(product=orderDetail.product)
+            for ingredient in ingredients:
+                predictDict[ingredient.material.id].append(int(orderDetail.amount) * int(ingredient.unit))
+
+    combinedDict = defaultdict(list)
+    allID = set(recurringDict.keys()).union(predictDict.keys()) # 獲取所有的 id
+    for materialID in allID:
+        combinedDict[materialID] = recurringDict[materialID] + predictDict[materialID]
+
+    stdDict = {}
+    avgDict = {}
+    for materialID, values in combinedDict.items():
+        if len(values) > 1:
+            stdDict[materialID] = statistics.stdev(values)
+            avgDict[materialID] = statistics.mean(values)
+        else:
+            stdDict[materialID] = None
+            avgDict[materialID] = None
+    #服務水準95%，查表得Z=1.65
+    Z = 1.65
+    #10天訂一次，使用定期訂購模型
+    OI = 10
+    orderAmountDict = {}
+    for materialID, values in stdDict.items():
+        lt = Material.objects.get(id=materialID).shipDay
+        inventoryAmount = Inventory.objects.filter(material_id=materialID).aggregate(totalImport=Sum('importAmount')
+                                                                                    )['totalImport']
+        packAmount = Material.objects.get(id=materialID)
+        if inventoryAmount is None:
+            inventoryAmount = 0
+        quantity = avgDict[materialID] * (OI + lt) + Z * stdDict[materialID] * ((OI + lt) ** 0.5) - inventoryAmount
+        if quantity > 0:
+            quantity = math.ceil(quantity / packAmount)
+        else:
+            quantity = 0
+        orderAmountDict[materialID] = quantity
+    return orderAmountDict
+
+
+def refreshQuantity():
+    now = datetime.now()
+    lastRefresh = RefreshRecord.objects.all().order_by('-lastRefreshDate').first()
+    startDate = datetime.now().date()
+    if lastRefresh.exists():
+        startDate = lastRefresh.lastRefreshDate.date()
+    endDate = now.date()
+    weekDayCount = Counter()
+    currentDate = startDate
+    while currentDate <= endDate:
+        weekDayCount[currentDate.weekday()] += 1
+        currentDate += timedelta(days=1)
+    recurringOrders = Order.objects.filter(type="recurring")
 
     recurringDict = defaultdict(int)
     for recurringOrder in recurringOrders:
@@ -847,16 +920,54 @@ def getSalePrediction():
         for orderDetail in orderDetails:
             ingredients = Ingredient.objects.filter(product=orderDetail.product)
             for ingredient in ingredients:
-                recurringDict[ingredient.material.id
-                             ] += int(orderDetail.amount) * int(ingredient.unit) * int(recurringOrder.sellCount)
-    predictDict = defaultdict(int)
+                if recurringOrder.mon == 1:
+                    recurringDict[ingredient.material.id
+                                 ] += int(orderDetail.amount) * int(ingredient.unit) * weekDayCount[0]
+
+                elif recurringOrder.tue == 1:
+                    recurringDict[ingredient.material.id
+                                 ] += int(orderDetail.amount) * int(ingredient.unit) * weekDayCount[1]
+                elif recurringOrder.wed == 1:
+                    recurringDict[ingredient.material.id
+                                 ] += int(orderDetail.amount) * int(ingredient.unit) * weekDayCount[2]
+                elif recurringOrder.thu == 1:
+                    recurringDict[ingredient.material.id
+                                 ] += int(orderDetail.amount) * int(ingredient.unit) * weekDayCount[3]
+                elif recurringOrder.fri == 1:
+                    recurringDict[ingredient.material.id
+                                 ] += int(orderDetail.amount) * int(ingredient.unit) * weekDayCount[4]
+
+    oneTimeOrders = Order.objects.filter(type="oneTime", orderDate__range=[lastRefresh, now])
+
+    oneTimeDict = defaultdict(int) # 每個 id 對應多個數據
     for oneTimeOrder in oneTimeOrders:
         orderDetails = OrderDetail.objects.filter(order=oneTimeOrder)
         for orderDetail in orderDetails:
             ingredients = Ingredient.objects.filter(product=orderDetail.product)
             for ingredient in ingredients:
-                predictDict[ingredient.material.id] += int(orderDetail.amount) * int(ingredient.unit)
-    predictDict = {key: round(value / 2) for key, value in predictDict.items()}
-    recurringDict = dict(recurringDict)
-    predictDict = dict(predictDict)
-    return recurringDict, predictDict
+                oneTimeDict[ingredient.material.id] += (int(orderDetail.amount) * int(ingredient.unit))
+    combinedDict = defaultdict(int)
+    allID = set(recurringDict.keys()).union(oneTimeDict.keys()) # 獲取所有的 id
+    for materialID in allID:
+        combinedDict[materialID] = recurringDict[materialID] + oneTimeDict[materialID]
+    deductInventory(combinedDict)
+    RefreshRecord.objects.create()
+
+
+def deductInventory(materialDict):
+    for key, value in materialDict.items():
+        inventories = Inventory.objects.filter(material_id=key).order_by('importDate')
+        remainAmount = value
+        with transaction.atomic():
+            for inventory in inventories:
+                if remainAmount <= 0:
+                    break
+
+                if inventory.importAmount > remainAmount:
+                    inventory.importAmount -= remainAmount
+                    inventory.save()
+                else:
+                    remainAmount -= inventory.importAmount
+                    inventory.delete()
+        if remainAmount > 0:
+            raise ValueError(f"存貨不足：需要 {value}，但可用存貨不足。")
