@@ -2,6 +2,7 @@
 $(document).ready(function () {
     // 初始化獲取表格數據
     loadInventoryTable();
+    loadImport();
 
     // 綁定修改按鈕事件
     $('#inventoryTable').on('click', '.modifyButton', function () {
@@ -86,6 +87,31 @@ function loadInventoryTable() {
                 row.append('<td>' + inventory.expiredDate + '</td>');
                 row.append('<td><a class="modifyButton btn btn-info btn-icon-split"><span class="icon text-white-50"><i class="fas fa-info-circle"></i></span><span class="text">修改</span></a></td>');
                 row.append('<td><a class="deleteButton btn btn-danger btn-icon-split"><span class="icon text-white-50"><i class="fas fa-trash"></i></span><span class="text">刪除</span></a></td>');
+                tableBody.append(row);
+            });
+        },
+        error: function (error) {
+            console.error('Error fetching data:', error);
+        },
+    });
+}
+
+function loadImport() {
+    $.ajax({
+        url: '/getImportAmount',
+        type: 'GET',
+        dataType: 'json',
+        success: function (data) {
+            let table = $('#importTable');
+            let tableBody = $('<tbody>');
+            table.append(tableBody);
+
+            $.each(data, function (index,importData) {
+                let row = $('<tr></tr>');
+                row.append('<td>' + importData.materialName + '</td>');
+                row.append('<td>' + importData.amount + '</td>');
+                row.append('<td>' + importData.supplierName + '</td>');
+                row.append('<td>' + importData.supplierPhone + '</td>');
                 tableBody.append(row);
             });
         },

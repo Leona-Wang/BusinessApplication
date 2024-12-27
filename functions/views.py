@@ -840,7 +840,7 @@ def removeInventory(inventoryID=None, inventory=None):
     inventory.delete()
 
 
-def getImportAmount():
+def getImportAmount(request):
     recurringOrders = Order.objects.filter(type="recurring"
                                           ).annotate(sellCount=F('mon') + F('tue') + F('wed') + F('thu') + F('fri'))
 
@@ -888,7 +888,7 @@ def getImportAmount():
         lt = Material.objects.get(id=materialID).shipDay
         inventoryAmount = Inventory.objects.filter(material_id=materialID).aggregate(totalImport=Sum('importAmount')
                                                                                     )['totalImport']
-        packAmount = Material.objects.get(id=materialID)
+        packAmount = Material.objects.get(id=materialID).packAmount
         if inventoryAmount is None:
             inventoryAmount = 0
         quantity = avgDict[materialID] * (OI + lt) + Z * stdDict[materialID] * ((OI + lt) ** 0.5) - inventoryAmount
@@ -897,15 +897,23 @@ def getImportAmount():
         else:
             quantity = 0
         orderAmountDict[materialID] = quantity
-    return orderAmountDict
+    importList = []
+    for key, value in orderAmountDict.items():
+        supplier = MaterialSource.objects.get(material_id=key).supplier
+        importData = {
+            'materialName': Material.objects.get(id=key).materialName,
+            'amount': value,
+            'supplierName': supplier.supplierName,
+            'supplierPhone': supplier.supplierPhone
+        }
+        importList.append(importData)
+    return JsonResponse(importList, safe=False)
 
 
 def refreshQuantity():
     now = datetime.now()
-    lastRefresh = RefreshRecord.objects.all().order_by('-lastRefreshDate').first()
-    startDate = datetime.now().date()
-    if lastRefresh.exists():
-        startDate = lastRefresh.lastRefreshDate.date()
+    lastRefresh = RefreshRecord.objects.all().order_by('-lastRefreshDate').first().lastRefreshDate
+    startDate = lastRefresh.date()
     endDate = now.date()
     weekDayCount = Counter()
     currentDate = startDate

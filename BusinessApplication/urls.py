@@ -58,6 +58,7 @@ urlpatterns = [
     path('getRecurringOrderList', views.getRecurringOrderList, name='getRecurringOrderList'),
     path('getTodayOrderList', views.getTodayOrderList, name='getTodayOrderList'),
     path('getInventoryList', views.getInventoryList, name='getInventoryList'),
+    path('getImportAmount', views.getImportAmount, name='getImportAmount'),
     #刪除資料
     path('deleteSupplier', views.deleteSupplier, name='deleteSupplier'),
     path('deleteMaterial', views.deleteMaterial, name='deleteMaterial'),
