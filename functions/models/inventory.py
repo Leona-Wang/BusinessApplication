@@ -7,7 +7,7 @@ from datetime import timedelta, date, datetime
 class Inventory(models.Model):
     material = models.ForeignKey("functions.Material", on_delete=models.CASCADE, related_name="inventoryMaterial")
     importPack = models.IntegerField(validators=[MinValueValidator(1)], blank=False, null=False)
-    importAmount = models.IntegerField(blank=False, null=False)
+    importAmount = models.IntegerField(blank=False, null=True)
     importDate = models.DateField(blank=False, null=False)
     expiredDate = models.DateField(blank=True, null=True)
 
@@ -20,7 +20,8 @@ class Inventory(models.Model):
         self.expiredDate = self.importDate + timedelta(days=self.material.validDay)
         self.material.packAmount = int(self.material.packAmount)
         self.importPack = int(self.importPack)
-        self.importAmount = self.material.packAmount * self.importPack
+        if self.importAmount == None:
+            self.importAmount = self.material.packAmount * self.importPack
 
         # 調用父類的 save 方法
         super().save(*args, **kwargs)

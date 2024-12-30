@@ -10,7 +10,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>index</title>
+    <title>showMaterial</title>
 
     <!-- Custom fonts for this template-->
     <link href="{% static 'vendor/fontawesome-free/css/all.min.css' %}" rel="stylesheet" type="text/css">
@@ -21,6 +21,7 @@
     <!-- Custom styles for this template-->
     <link href="{% static 'css/sb-admin-2.min.css' %}" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
 </head>
 
 <body id="page-top">
@@ -32,7 +33,7 @@
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{% url 'index' %}">
                 <div class="sidebar-brand-icon">
                     <i class="bi bi-shop"></i>
                 </div>
@@ -44,7 +45,7 @@
 
             <!-- Nav Item - Dashboard -->
             <li class="nav-item">
-                <a class="nav-link" href="">
+                <a class="nav-link" href="{% url 'index' %}">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>回到主頁</span></a>
             </li>
@@ -59,7 +60,7 @@
 
             <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#BOM"
+                <a class="nav-link collapsed" data-toggle="collapse" data-target="#BOM"
                     aria-expanded="true" aria-controls="BOM">
                     <i class="bi bi-card-list"></i>
                     <span>BOM表</span>
@@ -69,13 +70,16 @@
                         <h6 class="collapse-header">BOM表功能:</h6>
                         <a class="collapse-item" href="{% url 'showBOM' %}">查詢/修改/刪除BOM表</a>
                         <a class="collapse-item" href="{% url 'addBOM' %}">新增BOM表項目</a>
+                        <h6 class="collapse-header">原物料功能:</h6>
+                        <a class="collapse-item" href="{% url 'showMaterial' %}">查詢/修改/刪除原物料</a>
+                        <a class="collapse-item" href="{% url 'addMaterial' %}">新增原物料品項</a>
                     </div>
                 </div>
             </li>
 
             <!-- Nav Item - Utilities Collapse Menu -->
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#inventory"
+                <a class="nav-link collapsed" data-toggle="collapse" data-target="#inventory"
                     aria-expanded="true" aria-controls="inventory">
                     <i class="bi bi-box-seam-fill"></i>
                     <span>存貨管理</span>
@@ -90,7 +94,7 @@
             </li>
             
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#suppliers"
+                <a class="nav-link collapsed" data-toggle="collapse" data-target="#suppliers"
                     aria-expanded="true" aria-controls="suppliers">
                     <i class="bi bi-building-fill"></i>
                     <span>供應商資訊</span>
@@ -99,7 +103,7 @@
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">供應商資訊功能:</h6>
                         <a class="collapse-item" href="{% url 'showSupplier' %}">查詢/修改/刪除供應商</a>
-                        <a class="collapse-item" href="{% url 'addSupplier' %}">新增供應商項目</a>
+                        <a class="collapse-item" href="{% url 'addSupplier' %}">新增供應商資訊</a>
                     </div>
                 </div>
             </li>
@@ -114,7 +118,7 @@
 
             <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#customer" aria-expanded="false" aria-controls="customer">
+                <a class="nav-link collapsed" data-toggle="collapse" data-target="#customer" aria-expanded="false" aria-controls="customer">
                     <i class="bi bi-person-circle"></i>
                     <span>顧客清單</span>
                 </a>
@@ -128,26 +132,23 @@
             </li>
             <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#order" aria-expanded="false" aria-controls="order">
+                <a class="nav-link collapsed" data-toggle="collapse" data-target="#order" aria-expanded="false" aria-controls="order">
                     <i class="bi bi-cart-fill"></i>
-                    <span>訂單/購物紀錄</span>
+                    <span>訂單與銷貨紀錄</span>
                 </a>
                 <div id="order" class="collapse" aria-labelledby="headingOrder" data-parent="#accordionSidebar" style="">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">顧客訂單功能:</h6>
-                        <a class="collapse-item" href="{% url 'showOrder' %}">查詢/修改/刪除訂單</a>
-                        <a class="collapse-item" href="{% url 'addOrder' %}">新增訂單</a>
-                        <h6 class="collapse-header">散客購物紀錄功能:</h6>
-                        <a class="collapse-item" href="{% url 'showWalkIn' %}">查詢/修改/刪除散客購物紀錄</a>
-                        <a class="collapse-item" href="{% url 'addWalkIn' %}">新增散客購物紀錄</a>
+                        <h6 class="collapse-header">訂單與銷貨紀錄功能:</h6>
+                        <a class="collapse-item" href="{% url 'showOrder' %}">查詢/修改/刪除訂單與銷貨紀錄</a>
+                        <a class="collapse-item" href="{% url 'addOrder' %}">新增訂單/銷貨紀錄</a>
                     </div>
                 </div>
             </li>
             <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="{% url 'analysis' %}">
                     <i class="bi bi-clipboard-data-fill"></i>
-                    <span href="{% url 'analysis' %}">分析結果</span>
+                    <span>分析結果</span>
                 </a>
             </li>
 
@@ -181,152 +182,6 @@
 
                     <!-- Topbar Navbar -->
                     <ul class="navbar-nav ml-auto">
-
-                        <!-- Nav Item - Search Dropdown (Visible Only XS) -->
-                        <li class="nav-item dropdown no-arrow d-sm-none">
-                            <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-search fa-fw"></i>
-                            </a>
-                            <!-- Dropdown - Messages -->
-                            <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in"
-                                aria-labelledby="searchDropdown">
-                                <form class="form-inline mr-auto w-100 navbar-search">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control bg-light border-0 small"
-                                            placeholder="Search for..." aria-label="Search"
-                                            aria-describedby="basic-addon2">
-                                        <div class="input-group-append">
-                                            <button class="btn btn-primary" type="button">
-                                                <i class="fas fa-search fa-sm"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </li>
-
-                        <!-- Nav Item - Alerts -->
-                        <li class="nav-item dropdown no-arrow mx-1">
-                            <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-bell fa-fw"></i>
-                                <!-- Counter - Alerts -->
-                                <span class="badge badge-danger badge-counter">3+</span>
-                            </a>
-                            <!-- Dropdown - Alerts -->
-                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                                aria-labelledby="alertsDropdown">
-                                <h6 class="dropdown-header">
-                                    Alerts Center
-                                </h6>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="mr-3">
-                                        <div class="icon-circle bg-primary">
-                                            <i class="fas fa-file-alt text-white"></i>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="small text-gray-500">December 12, 2019</div>
-                                        <span class="font-weight-bold">A new monthly report is ready to download!</span>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="mr-3">
-                                        <div class="icon-circle bg-success">
-                                            <i class="fas fa-donate text-white"></i>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="small text-gray-500">December 7, 2019</div>
-                                        $290.29 has been deposited into your account!
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="mr-3">
-                                        <div class="icon-circle bg-warning">
-                                            <i class="fas fa-exclamation-triangle text-white"></i>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="small text-gray-500">December 2, 2019</div>
-                                        Spending Alert: We've noticed unusually high spending for your account.
-                                    </div>
-                                </a>
-                                <a class="dropdown-item text-center small text-gray-500" href="#">Show All Alerts</a>
-                            </div>
-                        </li>
-
-                        <!-- Nav Item - Messages -->
-                        <li class="nav-item dropdown no-arrow mx-1">
-                            <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-envelope fa-fw"></i>
-                                <!-- Counter - Messages -->
-                                <span class="badge badge-danger badge-counter">7</span>
-                            </a>
-                            <!-- Dropdown - Messages -->
-                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                                aria-labelledby="messagesDropdown">
-                                <h6 class="dropdown-header">
-                                    Message Center
-                                </h6>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="{% static 'img/undraw_profile_1.svg' %}"
-                                            alt="...">
-                                        <div class="status-indicator bg-success"></div>
-                                    </div>
-                                    <div class="font-weight-bold">
-                                        <div class="text-truncate">Hi there! I am wondering if you can help me with a
-                                            problem I've been having.</div>
-                                        <div class="small text-gray-500">Emily Fowler · 58m</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="{% static 'img/undraw_profile_2.svg' %}"
-                                            alt="...">
-                                        <div class="status-indicator"></div>
-                                    </div>
-                                    <div>
-                                        <div class="text-truncate">I have the photos that you ordered last month, how
-                                            would you like them sent to you?</div>
-                                        <div class="small text-gray-500">Jae Chun · 1d</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="{% static 'img/undraw_profile_3.svg' %}"
-                                            alt="...">
-                                        <div class="status-indicator bg-warning"></div>
-                                    </div>
-                                    <div>
-                                        <div class="text-truncate">Last month's report looks great, I am very happy with
-                                            the progress so far, keep up the good work!</div>
-                                        <div class="small text-gray-500">Morgan Alvarez · 2d</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="https://source.unsplash.com/Mv9hjnEUHR4/60x60"
-                                            alt="...">
-                                        <div class="status-indicator bg-success"></div>
-                                    </div>
-                                    <div>
-                                        <div class="text-truncate">Am I a good boy? The reason I ask is because someone
-                                            told me that people say this to all dogs, even if they aren't good...</div>
-                                        <div class="small text-gray-500">Chicken the Dog · 2w</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item text-center small text-gray-500" href="#">Read More Messages</a>
-                            </div>
-                        </li>
-
-                        <div class="topbar-divider d-none d-sm-block"></div>
-
-                        
-
                     </ul>
 
                 </nav>
@@ -334,51 +189,72 @@
 
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
-
                     <!-- Page Heading -->
-                    <h1 class="h3 mb-0 text-gray-800 mb-4">歡迎回來</h1>
-                    <div class="row">
-                        <div class="col-lg-6 mb-4">
-                            <div class="card shadow mb-4">
-                                <div class="card-header py-3">
-                                    <h6 class="m-0 font-weight-bold text-primary">作業管理</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="dropdown no-arrow mb-4">
-                                        <button class="col-lg-12 btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            請選擇作業管理相關功能
-                                        </button>
-                                        <div class="col-lg-12 dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
-                                            <a class="dropdown-item" href="showBOM.html">BOM表</a>
-                                            <a class="dropdown-item" href="#">存貨管理</a>
-                                            <a class="dropdown-item" href="#">供應商資訊</a>
-                                        </div>
-                                    </div>
-                                </div>
+                    <h1 class="h3 mb-0 text-gray-800 mb-4">客戶排序</h1>
+                
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">重要客戶：常客，交貨時多多問候，帶給客戶親切感</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="col-lg-12 table table-bordered" id="importantTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>客戶名稱</th>
+                                            <th>客戶電話</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
-                        <div class="col-lg-6 mb-4">
-                            <div class="card shadow mb-4">
-                                <div class="card-header py-3">
-                                    <h6 class="m-0 font-weight-bold text-primary">顧客關係管理</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="dropdown no-arrow mb-4">
-                                        <button class="col-lg-12 btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            請選擇顧客關係管理相關功能
-                                        </button>
-                                        <div class="col-lg-12 dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
-                                            <a class="dropdown-item" href="#">顧客訂單</a>
-                                            <a class="dropdown-item" href="#">顧客清單</a>
-                                            <a class="dropdown-item" href="#">分析結果</a>
-                                        </div>
-                                    </div>
-                                </div>
+                    </div>
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">普通客戶：交貨時可以給予一些獎勵(多給一些等)，吸引客戶多多購買</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="col-lg-12 table table-bordered" id="normalTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>客戶名稱</th>
+                                            <th>客戶電話</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
-                        
+                    </div>
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">危險客戶：不常來或消費金額不多，適時給予一些好處，爭取轉變成普通用戶</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="col-lg-12 table table-bordered" id="dangerTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>客戶名稱</th>
+                                            <th>客戶電話</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
+                
+                
                 <!-- /.container-fluid -->
 
             </div>
@@ -434,7 +310,15 @@
 
     <!-- Custom scripts for all pages-->
     <script src="{% static 'js/sb-admin-2.min.js' %}"></script>
+    
+    <script src="{% static 'js/analysisControl.js' %}"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 
+    <!-- Page level plugins -->
+    <script src="{% static 'vendor/datatables/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
+    
 </body>
 
 </html>

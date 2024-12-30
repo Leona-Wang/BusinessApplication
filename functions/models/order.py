@@ -9,8 +9,7 @@ class Order(models.Model):
         ('oneTime', 'OneTime'), # 一次性訂單
         ('recurring', 'Recurring'), # 定期訂單
     ]
-
-    customer = models.ForeignKey("functions.Customer", on_delete=models.CASCADE, related_name="customer") # 顧客編號
+    customer = models.ForeignKey("functions.Customer", on_delete=models.CASCADE, related_name="orders")
     type = models.CharField(max_length=10, choices=ORDER_TYPE_CHOICES, default='oneTime') # 訂單類型
     orderDate = models.DateTimeField(blank=True, null=True)
     mon = models.IntegerField(default=0)
@@ -21,6 +20,7 @@ class Order(models.Model):
 
     createdTime = models.DateTimeField(auto_now_add=True) # 訂單建立時間
     updatedTime = models.DateTimeField(auto_now=True) # 訂單更新時間
+    stored = models.BooleanField(default=False)
 
     def __str__(self):
         return f"""MaterialID: {self.material}

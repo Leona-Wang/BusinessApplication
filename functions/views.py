@@ -3,11 +3,12 @@ import statistics
 import math
 from datetime import datetime, timedelta
 from collections import defaultdict, Counter
-from django.db.models import F
+from django.db.models import F, Sum, Max, Min, Count, Case, When, Value, Q
+from datetime import date, timedelta
+from django.db.models.functions import Coalesce
 from django.shortcuts import get_object_or_404, render
 from django.http import JsonResponse
-from django.db import transaction
-from django.db.models import Sum
+from django.db import transaction, models
 from functions.models.supplier import Supplier
 from functions.models.material import Material
 from functions.models.materialSource import MaterialSource
@@ -18,6 +19,9 @@ from functions.models.customer import Customer
 from functions.models.order import Order
 from functions.models.orderDetail import OrderDetail
 from functions.models.refreshRecord import RefreshRecord
+from django.db.models import Subquery, OuterRef, Case, When, Value, F
+from django.db.models import Count, Sum, Min
+from datetime import datetime, timedelta
 
 
 def index(request):
@@ -82,6 +86,7 @@ def showWalkIn(request):
 
 
 def analysis(request):
+    getRFM()
     return render(request, 'analysis.html')
 
 
@@ -754,6 +759,48 @@ def deleteInventory(request):
             return JsonResponse({"success": False, "message": "訂單不存在"})
 
 
+def getImportantList(request):
+    try:
+        importantList = []
+        importants = Customer.objects.filter(segment="VIP")
+        for important in importants:
+            customerName = important.customerName
+            customerPhone = important.customerPhone
+            importantData = {'customerName': customerName, 'customerPhone': customerPhone}
+            importantList.append(importantData)
+        return JsonResponse(importantList, safe=False)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+def getNormalList(request):
+    try:
+        normalList = []
+        normals = Customer.objects.filter(segment="Regular")
+        for normal in normals:
+            customerName = normal.customerName
+            customerPhone = normal.customerPhone
+            normalData = {'customerName': customerName, 'customerPhone': customerPhone}
+            normalList.append(normalData)
+        return JsonResponse(normalList, safe=False)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+def getDangerList(request):
+    try:
+        dangerList = []
+        dangers = Customer.objects.filter(segment="At Risk")
+        for danger in dangers:
+            customerName = danger.customerName
+            customerPhone = danger.customerPhone
+            dangerData = {'customerName': customerName, 'customerPhone': customerPhone}
+            dangerList.append(dangerData)
+        return JsonResponse(dangerList, safe=False)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
 def removeMaterial(materialID=None, material=None):
     if materialID is None:
         materialID = material.id
@@ -854,11 +901,15 @@ def getImportAmount(request):
                     int(orderDetail.amount) * int(ingredient.unit) * int(recurringOrder.sellCount)
                 )
 
-    #取前20筆(一個月)
-    oneTimeOrders = Order.objects.filter(type="oneTime").order_by('-orderDate')[:20]
+    now = datetime.now()
+    oneMonthAgo = now - timedelta(days=30)
+    oneTimeOrders = Order.objects.filter(type="oneTime", orderDate__gte=oneMonthAgo).order_by('-orderDate')
+    if oneTimeOrders.count() < 20:
+        oneTimeOrders = Order.objects.filter(type="oneTime", orderDate__lte=now).order_by('-orderDate')[:20]
 
     predictDict = defaultdict(list) # 每個 id 對應多個數據
     for oneTimeOrder in oneTimeOrders:
+
         orderDetails = OrderDetail.objects.filter(order=oneTimeOrder)
         for orderDetail in orderDetails:
             ingredients = Ingredient.objects.filter(product=orderDetail.product)
@@ -917,7 +968,7 @@ def refreshQuantity():
     endDate = now.date()
     weekDayCount = Counter()
     currentDate = startDate
-    while currentDate <= endDate:
+    while currentDate < endDate:
         weekDayCount[currentDate.weekday()] += 1
         currentDate += timedelta(days=1)
     recurringOrders = Order.objects.filter(type="recurring")
@@ -944,20 +995,23 @@ def refreshQuantity():
                 elif recurringOrder.fri == 1:
                     recurringDict[ingredient.material.id
                                  ] += int(orderDetail.amount) * int(ingredient.unit) * weekDayCount[4]
-
-    oneTimeOrders = Order.objects.filter(type="oneTime", orderDate__range=[lastRefresh, now])
+    oneTimeOrders = Order.objects.filter(type="oneTime", stored=False, orderDate__lte=now)
 
     oneTimeDict = defaultdict(int) # 每個 id 對應多個數據
     for oneTimeOrder in oneTimeOrders:
+        print(oneTimeOrder.customer.customerName)
         orderDetails = OrderDetail.objects.filter(order=oneTimeOrder)
         for orderDetail in orderDetails:
             ingredients = Ingredient.objects.filter(product=orderDetail.product)
             for ingredient in ingredients:
                 oneTimeDict[ingredient.material.id] += (int(orderDetail.amount) * int(ingredient.unit))
+        oneTimeOrder.stored = True
+        oneTimeOrder.save()
     combinedDict = defaultdict(int)
     allID = set(recurringDict.keys()).union(oneTimeDict.keys()) # 獲取所有的 id
     for materialID in allID:
         combinedDict[materialID] = recurringDict[materialID] + oneTimeDict[materialID]
+    print(combinedDict)
     deductInventory(combinedDict)
     RefreshRecord.objects.create()
 
@@ -965,17 +1019,89 @@ def refreshQuantity():
 def deductInventory(materialDict):
     for key, value in materialDict.items():
         inventories = Inventory.objects.filter(material_id=key).order_by('importDate')
-        remainAmount = value
+        remainAmount = int(value)
         with transaction.atomic():
             for inventory in inventories:
+                importAmount = inventory.importAmount
                 if remainAmount <= 0:
                     break
 
-                if inventory.importAmount > remainAmount:
-                    inventory.importAmount -= remainAmount
+                if int(inventory.importAmount) > remainAmount:
+                    importAmount -= remainAmount
+                    remainAmount = 0
+                    inventory.importAmount = importAmount
                     inventory.save()
                 else:
-                    remainAmount -= inventory.importAmount
+                    remainAmount -= importAmount
                     inventory.delete()
         if remainAmount > 0:
-            raise ValueError(f"存貨不足：需要 {value}，但可用存貨不足。")
+            print(f"no {remainAmount}")
+
+
+def getRFM():
+    # 設定當前日期和週的日期
+    analysisDate = datetime.now().date()
+    currentWeek = {
+        'mon': (analysisDate - timedelta(days=analysisDate.weekday())).isoformat(),
+        'tue': (analysisDate - timedelta(days=analysisDate.weekday() - 1)).isoformat(),
+        'wed': (analysisDate - timedelta(days=analysisDate.weekday() - 2)).isoformat(),
+        'thu': (analysisDate - timedelta(days=analysisDate.weekday() - 3)).isoformat(),
+        'fri': (analysisDate - timedelta(days=analysisDate.weekday() - 4)).isoformat(),
+    }
+
+    # 查詢一次性訂單 (oneTime orders)
+    oneTimeRecency = Order.objects.filter(type="oneTime", customer_id=OuterRef('pk')).values('orderDate')[:1]
+
+    # 查詢定期訂單 (recurring orders)
+    recurringRecency = Order.objects.filter(type="recurring", customer_id=OuterRef('pk')).annotate(
+        lastDeliveryDate=Case(
+            When(mon=1, then=Value(currentWeek['mon'])),
+            When(tue=1, then=Value(currentWeek['tue'])),
+            When(wed=1, then=Value(currentWeek['wed'])),
+            When(thu=1, then=Value(currentWeek['thu'])),
+            When(fri=1, then=Value(currentWeek['fri'])),
+            default=None,
+            output_field=models.DateField()
+        )
+    ).values('lastDeliveryDate')[:1]
+    defaultRecencyDate = analysisDate - timedelta(days=10)
+    # 查詢所有顧客並計算 RFM 數據
+    rfmData = Customer.objects.annotate(
+        # 最近一次訂單距分析基準日期的天數 (Recency)
+        recency=Coalesce(Subquery(oneTimeRecency), Subquery(recurringRecency), Value(defaultRecencyDate)),
+        # 訂單次數 (Frequency)
+        frequency=Count('orders'), # 使用 orders 來計算訂單數量
+        # 總消費金額 (Monetary)
+        monetary=Sum(F('orders__orderID__amount') * F('orders__orderID__product__productPrice')) # 使用 orders 來計算金額
+    )
+
+    # 計算 RFM 分數
+    for customer in rfmData:
+        recencyDate = customer.recency.date()
+        recencyDays = (analysisDate - recencyDate).days
+        recencyScore = 5 if recencyDays <= 2 else (
+            4 if recencyDays <= 4 else (3 if recencyDays <= 6 else (2 if recencyDays <= 8 else 1))
+        )
+        frequencyScore = 5 if customer.frequency >= 8 else (
+            4 if customer.frequency >= 6 else (3 if customer.frequency >= 4 else (2 if customer.frequency >= 2 else 1))
+        )
+        monetary = customer.monetary if customer.monetary is not None else 0
+        monetaryScore = 5 if monetary >= 160 else (
+            4 if monetary >= 120 else (3 if monetary >= 80 else (2 if monetary >= 40 else 1))
+        )
+
+        # 計算 RFM 分數
+        rfmScore = f"{monetaryScore}{frequencyScore}{recencyScore}"
+        rfmTotal = monetaryScore + frequencyScore + recencyScore
+        # 根據 RFM 分數設定 Segment
+        segment = ""
+        if rfmTotal > 10:
+            segment = "VIP"
+        elif rfmTotal <= 10 and rfmTotal > 5:
+            segment = "Regular"
+        else:
+            segment = "At Risk"
+
+        customer.rfmScore = rfmScore
+        customer.segment = segment
+        customer.save()
